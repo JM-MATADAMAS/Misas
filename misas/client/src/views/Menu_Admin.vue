@@ -220,6 +220,9 @@
 <script>
 export default {
     name: 'home',
+    metaInfo: {
+        title: 'Vista de administrador',
+    },
     components:{
     },
     data() {

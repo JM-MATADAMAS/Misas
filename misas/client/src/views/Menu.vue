@@ -60,6 +60,9 @@
 <script>
 export default {
     name: 'home',
+    metaInfo: {
+        title: 'Menú principal',
+    },
     components:{
     },
     data() {
