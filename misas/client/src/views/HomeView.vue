@@ -2,7 +2,7 @@
     <div>
         <v-app>
         <!-- Barra de navegación -->
-            <v-app-bar app color="primary" dark>
+            <v-app-bar app color="primary" dark elevation="0">
             <v-spacer/>
             <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Menú Principal</v-toolbar-title>
             <v-spacer/>

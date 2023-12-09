@@ -2,7 +2,7 @@
 
 <template>
     <v-container>
-        <v-app-bar app color="primary" dark>
+        <v-app-bar app color="primary" dark elevation="0">
             <v-spacer/>
             <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Usuario</v-toolbar-title>
             <v-spacer/>

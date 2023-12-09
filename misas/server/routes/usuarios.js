@@ -54,4 +54,3 @@ router.post('/iniciar_sesion', async (req, res) => {
 });
 
 module.exports = router;
-
