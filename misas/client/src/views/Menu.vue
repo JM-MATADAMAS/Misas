@@ -9,13 +9,13 @@
             <!--v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">SH</v-toolbar-title-->
         </v-app-bar>
         <!-- Tabla de Misas -->
-        <v-data-table :headers="encabezados" :items="misas" :items-per-page="15" :class="elevation-1"  style="margin: 0 auto; max-width: 400px">
+        <v-data-table :headers="encabezados" :items="misas" :items-per-page="15" :class="elevation-1"  style="margin: 0 auto; max-width: 450px">
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Misas</v-toolbar-title>
                 </v-toolbar>
             </template>
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
                 <v-icon @click="verDetalles(item)" small>
                     mdi-eye
                 </v-icon>
