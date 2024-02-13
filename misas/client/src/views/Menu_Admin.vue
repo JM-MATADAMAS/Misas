@@ -17,7 +17,7 @@
                     <v-btn color="primary" @click="mostrarDialogoAgregarMisa()">Agregar Misa</v-btn>
                 </v-toolbar>
             </template>
-            <template v-slot:item.actions="{ item }">
+            <template v-slot:[`item.actions`]="{ item }">
                 <v-icon @click="eliminar_misa(item)" small class="mr-5">
                     fa-solid fa-trash
                 </v-icon>
@@ -220,6 +220,9 @@
 <script>
 export default {
     name: 'home',
+    metaInfo: {
+        title: 'Vista de administrador',
+    },
     components:{
     },
     data() {
@@ -229,7 +232,7 @@ export default {
             encabezados: [
                 {text: 'Fecha',value: 'mi_fecha'},
                 {text: 'Tipo',value: 'mi_tipo'},
-                {text: 'Acciones', sortable: false,value: 'actions'}
+                {text: 'Acciones', sortable: false, value: 'actions'}
             ],
 
             misas: [],

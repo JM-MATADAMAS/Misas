@@ -39,9 +39,12 @@
       </v-app>
     </div>
   </template>
-  
+
   <script>
   export default {
+    metaInfo: {
+      title: 'Inicio de sesión',
+  },
     data() {
       return {
         correo: '',
