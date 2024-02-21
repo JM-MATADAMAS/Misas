@@ -2,34 +2,44 @@
 
 <template>
     <v-container>
-        <v-app-bar app color="primary" dark elevation="0">
+        <v-card class="mx-auto" width="500px">
+            <v-card-title>
+                <v-text-field
+                    v-model="search"
+                    append-icon="mdi-magnify"
+                    label="Search"
+                    single-line
+                    hide-details
+                 ></v-text-field>
+            </v-card-title>
+        <v-app-bar app color="blue darken-4" dark elevation="0">
             <v-spacer/>
             <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Admin 😎</v-toolbar-title>
             <v-spacer/>
-            <!--v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">SH</v-toolbar-title-->
         </v-app-bar>
         <!-- Tabla de Misas -->
-        <v-data-table :headers="encabezados" :items="misas" :items-per-page="15" :class="elevation-1" style="margin: 0 auto; max-width: 500px">
+        
+        <v-data-table :search="search" :headers="encabezados" :items="misas" :items-per-page="10" :class="elevation-1" style="max-width: 900px">
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Misas</v-toolbar-title>
                     <v-spacer/>
-                    <v-btn color="primary" @click="mostrarDialogoAgregarMisa()">Agregar Misa</v-btn>
+                    <v-btn color="blue lighten-3" @click="mostrarDialogoAgregarMisa()">Agregar Misa</v-btn>
                 </v-toolbar>
             </template>
             <template v-slot:[`item.actions`]="{ item }">
-                <v-icon @click="eliminar_misa(item)" small class="mr-5">
-                    fa-solid fa-trash
+                <v-icon @click="eliminar_misa(item)" class="mr-5">
+                    mdi-delete
                 </v-icon>
-                <v-icon @click="editarMisa(item)" small class="mr-5">
-                    fa-solid fa-pencil-alt
+                <v-icon @click="editarMisa(item)" class="mr-5">
+                    mdi-pencil
                 </v-icon>
-                <v-icon @click="verDetalles(item)" small>
+                <v-icon @click="verDetalles(item)">
                     mdi-eye
                 </v-icon>
             </template>
         </v-data-table>
-        <v-dialog v-model="nm_dialog" max-width="500px">
+        <v-dialog v-model="nm_dialog" max-width="500px" persistent>
             <v-card>
                 <v-card-title>
                     {{ nueva_misa.mi_id ? 'Editar Misa' : 'Nueva Misa' }}
@@ -98,10 +108,9 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-    <v-dialog v-model="d_dialog" max-width="500px">
+    <v-dialog v-model="d_dialog" max-width="500px" persistent>
         <v-card>
             <v-card-title>Cantos de la misa</v-card-title>
-            <v-card-title>Pulsar salir SI o SI</v-card-title>
                 <v-card-text>
                     <v-container>
                         <v-row v-for="(item, index) in misas" :key="index">
@@ -131,7 +140,7 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
-        <v-dialog v-model="mostrarDialogo" max-width="500px">
+        <v-dialog v-model="mostrarDialogo" max-width="500px" persistent>
             <v-card>
                 <v-card-title>Agregar Misa</v-card-title>
                     <v-card-text>
@@ -213,6 +222,18 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        <v-dialog v-model="dialogDelete" max-width="500px">
+          <v-card>
+            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
+              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
+              <v-spacer></v-spacer>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+    </v-card>
     </v-container>
 </template>
 
@@ -227,7 +248,7 @@ export default {
     },
     data() {
         return {
-            
+            search: '',
             // Encabezados Usuarios
             encabezados: [
                 {text: 'Fecha',value: 'mi_fecha'},
@@ -289,7 +310,13 @@ export default {
             comentario:[]
         };
     },
-
+    computed: {
+        misasFiltradas() {
+            return this.misas.filter((misa) =>
+            misa.mi_fecha.toLowerCase().includes(this.searchDate.toLowerCase())
+            );
+        },
+    },
     created() {
         this.llenar_misas();
         this.obtenerDatosCanto('entrada', '/cantos/todos_entrada');
@@ -303,7 +330,7 @@ export default {
         this.obtenerDatosCanto('comunion', '/cantos/todos_comunion');
         this.obtenerDatosCanto('salida', '/cantos/todos_salida');
     },
-
+    
     methods: {
 
         async obtenerDatosCanto(nombreArreglo, url) {
@@ -454,4 +481,7 @@ export default {
         text-align: center;
         margin: auto;
     }
+    .custom-table {
+    text-align: center; /* Para centrar el texto en las celdas */
+  }
 </style>

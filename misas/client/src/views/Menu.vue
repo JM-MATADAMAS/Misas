@@ -21,10 +21,9 @@
                 </v-icon>
             </template>
         </v-data-table>
-        <v-dialog v-model="d_dialog" max-width="500px">
+        <v-dialog v-model="d_dialog" max-width="500px" persistent>
         <v-card>
             <v-card-title>Cantos de la misa</v-card-title>
-            <v-card-title>Pulsar salir SI o SI</v-card-title>
                 <v-card-text>
                     <v-container>
                         <v-row v-for="(item, index) in misas" :key="index">
