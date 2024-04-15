@@ -34,25 +34,28 @@ router.post('/iniciar_sesion', async (req, res) => {
     try {
         // Consulta SQL para buscar al usuario por correo
         const query = 'SELECT * FROM usuario WHERE correo = ? AND contrasena = ?';
-        connection.query(query, [correo, contrasena], (error, results)=>{
-            if (error){
+        connection.query(query, [correo, contrasena], (error, results) => {
+            if (error) {
                 console.error('Error al obtener el usuario:', error);
                 res.status(500).json('Error al iniciar sesión');
             } else {
+                console.log('Usuario encontrado:', results[0]);
                 if (results.length > 0) {
-                    const usuario = results [0];
+                    const usuario = results[0];
                     res.json(usuario);
                 } else {
                     res.json(null);
                 }
             }
-        }); 
-        }catch (error) {
+        });
+        
+    } catch (error) {
         console.log('Error en iniciar_sesion:', error);
         res.json({
             error: error
         });
     }
 });
+
 
 module.exports = router;

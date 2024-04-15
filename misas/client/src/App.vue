@@ -4,11 +4,11 @@
       app
       color="primary"
       dark
+      elevation="0"
     >
       <v-toolbar-title>misas</v-toolbar-title>
     </v-app-bar>
-
-    <v-main>
+    <v-main style="padding: 0px 0px 0px;" elevation="0">
       <router-view /> <!-- Asegúrate de tener esta línea para mostrar el componente actual -->
     </v-main>
   </v-app>
@@ -25,8 +25,8 @@ export default {
 </script>
 
 <style>
-#app {
-  background: url('../../Night.jpg');
-  background-size: cover;
-}
+.custom-padding {
+  padding: 0px 0px 0px 56px; /* Ajusta el valor según tus necesidades */
+  }
+
 </style>

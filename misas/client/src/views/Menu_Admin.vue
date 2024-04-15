@@ -1,242 +1,589 @@
 <title>Estructuras del coro por misa(Admin)</title>
 
 <template>
-    <v-container>
-        <v-card class="mx-auto" width="500px">
-            <v-card-title>
-                <v-text-field
-                    v-model="search"
-                    append-icon="mdi-magnify"
-                    label="Search"
-                    single-line
-                    hide-details
-                 ></v-text-field>
-            </v-card-title>
+    <v-app app>
         <v-app-bar app color="blue darken-4" dark elevation="0">
-            <v-spacer/>
-            <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Admin 😎</v-toolbar-title>
-            <v-spacer/>
+            <v-spacer />
+            <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">
+                Admin 😎
+            </v-toolbar-title>
+            <v-spacer />
         </v-app-bar>
-        <!-- Tabla de Misas -->
-        
-        <v-data-table :search="search" :headers="encabezados" :items="misas" :items-per-page="10" :class="elevation-1" style="max-width: 900px">
-            <template v-slot:top>
-                <v-toolbar flat>
-                    <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Misas</v-toolbar-title>
-                    <v-spacer/>
-                    <v-btn color="blue lighten-3" @click="mostrarDialogoAgregarMisa()">Agregar Misa</v-btn>
-                </v-toolbar>
-            </template>
-            <template v-slot:[`item.actions`]="{ item }">
-                <v-icon @click="eliminar_misa(item)" class="mr-5">
-                    mdi-delete
-                </v-icon>
-                <v-icon @click="editarMisa(item)" class="mr-5">
-                    mdi-pencil
-                </v-icon>
-                <v-icon @click="verDetalles(item)">
-                    mdi-eye
-                </v-icon>
-            </template>
-        </v-data-table>
-        <v-dialog v-model="nm_dialog" max-width="500px" persistent>
-            <v-card>
+        <v-navigation-drawer v-model="drawer" app class="pt-2" elevation="0" :mini-variant.sync="mini" permanent
+            expand-on-hover>
+            <v-list-item class="px-2">
+                <v-list-item-avatar>
+                    <v-img src="../../../messi_mundial.webp"></v-img>
+                </v-list-item-avatar>
+                <v-list-item-title :style="{ fontFamily: 'Courier New', fontSize: '18px', fontWeight: 'bold' }">Javier
+                    Matadamas</v-list-item-title>
+            </v-list-item>
+            <v-divider />
+            <v-list style="
+                padding-bottom: 0px;
+                padding-top: 0px;
+                padding-right: 0px;
+            ">
+                <v-list-item-group color="#9575CD">
+                    <v-list-item @click="agregarCanto = true">
+                        <v-list-item-icon>
+                            <v-icon color="deep-purple lighten-2">mdi-database-plus</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title
+                            :style="{ fontFamily: 'Courier New', fontSize: '20px', fontWeight: 'bold', color: '#9575CD' }">
+                            Agregar canto
+                        </v-list-item-title>
+                    </v-list-item>
+                </v-list-item-group>
+                <v-divider />
+                <v-list-item-group color="primary">
+                    <v-list-item @click="toggleDarkMode">
+                        <v-list-item-icon>
+                            <v-icon dark color="primary">mdi-opacity</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title
+                            :style="{ fontFamily: 'Courier New', fontSize: '20px', fontWeight: 'bold', color: '#1976D2' }">
+                            Cambiar Tema
+                        </v-list-item-title>
+                    </v-list-item>
+                </v-list-item-group>
+            </v-list>
+        </v-navigation-drawer>
+        <v-container app style="padding: 112px 50px 10px;">
+            <v-card class="mx-auto" width="500px">
                 <v-card-title>
-                    {{ nueva_misa.mi_id ? 'Editar Misa' : 'Nueva Misa' }}
+                    <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
+                        hide-details></v-text-field>
                 </v-card-title>
-                <v-card-text>
-                    <v-container>
-                        <v-row justify="center">
-                            <v-col cols="6" class="text-center">
-                                <v-text-field v-model="nueva_misa.mi_fecha" label="Fecha"></v-text-field>
-                            </v-col>
-                            <v-col cols="6" align-self="auto">
-                                <v-select v-model="nueva_misa.mi_tipo" :items="tipo" label="Tipo"></v-select>
-                            </v-col>
-                        </v-row>
+                <v-data-table elevation="0" :search="search" :headers="encabezados" :items="misas" :items-per-page="5"
+                    style="margin: 0 auto; max-width: 450px">
+                    <template v-slot:top>
+                        <v-toolbar flat>
+                            <v-toolbar-title
+                                :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Misas</v-toolbar-title>
+                            <v-spacer />
+                            <v-btn color="success" outlined elevation="-1" @click="mostrarDialogo = true;">Agregar
+                                Misa</v-btn>
+                        </v-toolbar>
+                    </template>
+                    <template v-slot:[`item.actions`]="{ item }">
                         <v-row>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_entrada" :items="entrada" label="Entrada"></v-select>
+                            <v-col cols="2">
+                                <v-tooltip top color="red darken-3">
+                                    <template #activator="{ on, attrs }">
+                                        <v-btn v-bind="attrs" icon color="red darken-3" @click="beforeDelete(item)"
+                                            v-on="on">
+                                            <v-icon>mdi-delete</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Borrar la misa {{ item.mi_fecha }}</span>
+                                </v-tooltip>
                             </v-col>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_piedad" :items="piedad" label="Piedad"></v-select>
+                            <v-col cols="2">
+                                <v-tooltip top color="amber darken-2">
+                                    <template #activator="{ on, attrs }">
+                                        <v-btn v-bind="attrs" icon color="amber darken-2" @click="editarMisa(item)"
+                                            v-on="on">
+                                            <v-icon>mdi-pencil</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Modificar la misa {{ item.mi_fecha }}</span>
+                                </v-tooltip>
                             </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_gloria" :items="gloria" label="Gloria"></v-select>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_salmo" :items="salmo" label="Salmo"></v-select>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_aleluya" :items="aleluya" label="Aleluya"></v-select>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_ofertorio" :items="ofertorio" label="Ofertorio"></v-select>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_santo" :items="santo" label="Santo"></v-select>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_cordero" :items="cordero" label="Cordero"></v-select>
-                            </v-col>
-                        </v-row>
-                        <v-row>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_comunion" :items="comunion" label="Comunión"></v-select>
-                            </v-col>
-                            <v-col cols="6">
-                                <v-select v-model="nueva_misa.mi_salida" :items="salida" label="Salida"></v-select>
+                            <v-col cols="2">
+                                <v-tooltip top color="teal darken-1">
+                                    <template #activator="{ on, attrs }">
+                                        <v-btn v-bind="attrs" icon color="teal darken-1" @click="verDetalles(item)"
+                                            v-on="on">
+                                            <v-icon>mdi-eye</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <span>Ver detalles de la misa {{ item.mi_fecha }}</span>
+                                </v-tooltip>
                             </v-col>
                         </v-row>
-                        <v-row>
-                            <v-col cols="12">
-                                <v-textarea v-model="nueva_misa.mi_comentario" label="Comentario" auto-grow></v-textarea>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="success" @click="guardar_misa()">Guardar</v-btn>
-                    <v-btn color="error" @click="cancelar()">Cancelar</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-    <v-dialog v-model="d_dialog" max-width="500px" persistent>
-        <v-card>
-            <v-card-title>Cantos de la misa</v-card-title>
-                <v-card-text>
-                    <v-container>
-                        <v-row v-for="(item, index) in misas" :key="index">
-                            <v-col cols="12">
-                                <v-text-field class="centered-title" label="Fecha" v-model="item.mi_fecha" 
-                                :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }" disabled></v-text-field>
-                                <v-text-field label="Tipo" v-model="item.mi_tipo"
-                                :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }" disabled></v-text-field>
-                                <v-text-field   label="Entrada" v-model="item.mi_entrada" disabled></v-text-field>
-                                <v-text-field   label="Piedad" v-model="item.mi_piedad" disabled></v-text-field>
-                                <v-text-field   label="Gloria" v-model="item.mi_gloria" disabled></v-text-field>
-                                <v-text-field   label="Salmo" v-model="item.mi_salmo" disabled></v-text-field>
-                                <v-text-field   label="Aleluya/Honor y gloria" v-model="item.mi_aleluya" disabled></v-text-field>
-                                <v-text-field   label="Ofertorio" v-model="item.mi_ofertorio" disabled></v-text-field>
-                                <v-text-field   label="Santo" v-model="item.mi_santo" disabled></v-text-field>
-                                <v-text-field   label="Cordero" v-model="item.mi_cordero" disabled></v-text-field>
-                                <v-text-field   label="Comunion" v-model="item.mi_comunion" disabled></v-text-field>
-                                <v-text-field   label="Salida" v-model="item.mi_salida" disabled></v-text-field>
-                                <v-textarea     label="Comentario" v-model="item.mi_comentario" disabled auto-grow></v-textarea>
-                            </v-col>
-                        </v-row>
-                    </v-container>
-                </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="error" @click="cancelar()">Salir</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-dialog v-model="mostrarDialogo" max-width="500px" persistent>
-            <v-card>
-                <v-card-title>Agregar Misa</v-card-title>
-                    <v-card-text>
-                        <v-container>
-                            <v-row>
-                                <v-col cols="6">
-                                    <v-menu
-                                    v-model="fechaPickerVisible"
-                                    :close-on-content-click="false"
-                                    transition="scale-transition"
-                                    offset-y
-                                    >
-                                        <template v-slot:activator="{ on }">
-                                            <v-text-field
-                                            v-model="nueva_misa.mi_fecha"
-                                            label="Fecha"
-                                            readonly
-                                            v-on="on"
-                                            ></v-text-field>
-                                        </template>
-                                        <v-date-picker show-adjacent-months v-model="nueva_misa.mi_fecha"></v-date-picker>
-                                    </v-menu>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_tipo" :items="tipo" label="Tipo"></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_entrada" :items="entrada" label="Entrada"></v-select>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_piedad" :items="piedad" label="Piedad"></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_gloria" :items="gloria" label="Gloria"></v-select>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_salmo" :items="salmo" label="Salmo"></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_aleluya" :items="aleluya" label="Aleluya"></v-select>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_ofertorio" :items="ofertorio" label="Ofertorio"></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_santo" :items="santo" label="Santo"></v-select>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_cordero" :items="cordero" label="Cordero"></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_comunion" :items="comunion" label="Comunión"></v-select>
-                                </v-col>
-                                <v-col cols="6">
-                                    <v-select v-model="nueva_misa.mi_salida" :items="salida" label="Salida"></v-select>
-                                </v-col>
-                            </v-row>
-                            <v-row>
-                                <v-col cols="12">
-                                    <v-textarea v-model="nueva_misa.mi_comentario" label="Comentario" rows="4" no-resize></v-textarea>
-                                </v-col>
-                            </v-row>
-                        </v-container>
-                    </v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="success" @click="guardarNuevaMisa">Guardar</v-btn>
-                    <v-btn color="error" @click="mostrarDialogo = false">Cancelar</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
-        <v-dialog v-model="dialogDelete" max-width="500px">
-          <v-card>
-            <v-card-title class="text-h5">Are you sure you want to delete this item?</v-card-title>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="blue darken-1" text @click="closeDelete">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="deleteItemConfirm">OK</v-btn>
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-    </v-card>
-    </v-container>
-</template>
+                    </template>
+                </v-data-table>
+                <v-dialog v-model="nm_dialog" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>
+                            {{ nueva_misa.mi_id ? 'Editar Misa' : 'Nueva Misa' }}
+                        </v-card-title>
+                        <v-card-text>
+                            <v-container>
+                                <v-row justify="center">
+                                    <v-col cols="6" class="text-center">
+                                        <v-menu v-model="fechaPickerVisible" :close-on-content-click="false"
+                                            transition="scale-transition" offset-y>
+                                            <template v-slot:activator="{ on }">
+                                                <v-text-field dense v-model="nueva_misa.mi_fecha" label="Fecha" readonly
+                                                    v-on="on"></v-text-field>
+                                            </template>
+                                            <v-date-picker show-adjacent-months
+                                                v-model="nueva_misa.mi_fecha"></v-date-picker>
+                                        </v-menu>
+                                    </v-col>
+                                    <v-col cols="6" align-self="auto">
+                                        <v-select dense v-model="nueva_misa.mi_tipo" :items="tipo"
+                                            label="Tipo"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_entrada" :items="entrada"
+                                            label="Entrada"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_piedad" :items="piedad"
+                                            label="Piedad"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_gloria" :items="gloria"
+                                            label="Gloria"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_salmo" :items="salmo"
+                                            label="Salmo"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_aleluya" :items="aleluya"
+                                            label="Aleluya"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_ofertorio" :items="ofertorio"
+                                            label="Ofertorio"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_santo" :items="santo"
+                                            label="Santo"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_cordero" :items="cordero"
+                                            label="Cordero"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_comunion" :items="comunion"
+                                            label="Comunión"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_salida" :items="salida"
+                                            label="Salida"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12">
+                                        <v-textarea outlined v-model="nueva_misa.mi_comentario" label="Comentario"
+                                            rows="1" auto-grow></v-textarea>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn elevation="-1" color="error" @click="cancelar">Cancelar</v-btn>
+                            <v-spacer />
+                            <v-btn elevation="-1" color="success" @click="guardar_misa">Guardar</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+                <v-dialog v-model="d_dialog" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Registro de misa</v-card-title>
+                        <v-card-text>
+                            <v-container>
+                                <v-row v-for="(item, index) in misas" :key="index">
+                                    <v-col cols="6">
+                                        <v-text-field dense label="Fecha" v-model="item.mi_fecha"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Tipo" v-model="item.mi_tipo" disabled></v-text-field>
+                                        <v-text-field dense label="Entrada" v-model="item.mi_entrada"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Piedad" v-model="item.mi_piedad"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Gloria" v-model="item.mi_gloria"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Salmo" v-model="item.mi_salmo"
+                                            disabled></v-text-field>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-text-field dense label="Aleluya/Honor y gloria" v-model="item.mi_aleluya"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Ofertorio" v-model="item.mi_ofertorio"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Santo" v-model="item.mi_santo"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Cordero" v-model="item.mi_cordero"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Comunion" v-model="item.mi_comunion"
+                                            disabled></v-text-field>
+                                        <v-text-field dense label="Salida" v-model="item.mi_salida"
+                                            disabled></v-text-field>
+                                    </v-col>
+                                    <v-textarea outlined label="Comentario" v-model="item.mi_comentario" disabled
+                                        rows="1" auto-grow></v-textarea>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn elevation="-1" color="error" @click="cancelar()">Salir</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+                <v-dialog v-model="mostrarDialogo" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar Misa</v-card-title>
+                        <v-card-text>
+                            <v-container>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-menu v-model="fechaPickerVisible" :close-on-content-click="false"
+                                            transition="scale-transition" offset-y>
 
+                                            <template v-slot:activator="{ on }">
+                                                <v-text-field dense v-model="nueva_misa.mi_fecha" label="Fecha" readonly
+                                                    v-on="on"></v-text-field>
+                                            </template>
+                                            <v-date-picker show-adjacent-months
+                                                v-model="nueva_misa.mi_fecha"></v-date-picker>
+                                        </v-menu>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-autocomplete dense v-model="nueva_misa.mi_tipo" :items="tipo"
+                                            label="Tipo"></v-autocomplete>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_entrada" :items="entrada"
+                                            label="Entrada"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_piedad" :items="piedad"
+                                            label="Piedad"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_gloria" :items="gloria"
+                                            label="Gloria"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_salmo" :items="salmo"
+                                            label="Salmo"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_aleluya" :items="aleluya"
+                                            label="Aleluya"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_ofertorio" :items="ofertorio"
+                                            label="Ofertorio"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_santo" :items="santo"
+                                            label="Santo"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_cordero" :items="cordero"
+                                            label="Cordero"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_comunion" :items="comunion"
+                                            label="Comunión"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_salida" :items="salida"
+                                            label="Salida"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="12">
+                                        <v-textarea outlined v-model="nueva_misa.mi_comentario" label="Comentario"
+                                            rows="1" no-resize auto-grow></v-textarea>
+                                    </v-col>
+                                </v-row>
+                            </v-container>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn elevation="-1" color="error" @click="cancelar">Cancelar</v-btn>
+                            <v-spacer />
+                            <v-btn elevation="-1" color="success" @click="guardarNuevaMisa">Guardar</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+                <v-dialog v-model="dialogDelete" max-width="350" persistent>
+                    <v-card>
+                        <v-card-title class="text-h5">Eliminar misa</v-card-title>
+                        <v-card-text>¿Esta seguro de querer eliminar el registro?</v-card-text>
+                        <v-card-actions>
+                            <v-spacer />
+                            <v-btn elevation="-1" color="success" text @click="dialogDelete = false">
+                                Cancelar
+                            </v-btn>
+                            <v-btn elevation="-1" color="error" text @click="eliminar_misa">
+                                Eliminar
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+                <v-dialog v-model="agregarCanto" fullscreen hide-overlay transition="dialog-bottom-transition">
+                    <v-card>
+                        <v-toolbar dark color="blue darken-4" elevation="0">
+                            <v-btn icon dark @click="agregarCanto = false">
+                                <v-icon>mdi-close</v-icon>
+                            </v-btn>
+                            <v-toolbar-title
+                                :style="{ fontFamily: 'Courier New', fontSize: '24px', fontWeight: 'bold' }">Agregar
+                                canto</v-toolbar-title>
+                            <v-spacer></v-spacer>
+                        </v-toolbar>
+                        <v-list dense>
+                            <v-list-item>
+                                <v-col cols="2">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogEntrada = true">
+                                            Canto de entrada
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                                <v-col cols="2">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogPiedad = true">
+                                            Canto de piedad
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                                <v-col cols="2">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogGloria = true">
+                                            Canto de gloria
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                                <v-col cols="2">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogSalmo = true">
+                                            Salmo
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                                <v-col cols="4">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogAleluya = true">
+                                            Canto de aleluya / honor y gloria
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                            </v-list-item>
+                            <v-list-item>
+                                <v-col cols="2">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogOfertorio = true">
+                                            Canto de ofertorio
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                                <v-col cols="2">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogSanto = true">
+                                            Canto de santo
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                                <v-col cols="2">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogCordero = true">
+                                            Canto de cordero
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                                <v-col cols="2">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogComunion = true">
+                                            Canto de comunión
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                                <v-col cols="4">
+                                    <v-list-item-content>
+                                        <v-btn @click="dialogSalida = true">
+                                            Canto de salida
+                                        </v-btn>
+                                    </v-list-item-content>
+                                </v-col>
+                            </v-list-item>
+                        </v-list>
+                        <v-alert v-model="alertaIngresado" class="mx-auto" type="success" max-width="500px"
+                            transition="scale-transition">
+                            El canto se ingresó correctamente
+                        </v-alert>
+                        <v-alert v-model="alertaVacio" class="mx-auto" type="error"
+                            style="max-width: 500px; top: 400px;" transition="scale-transition">
+                            Campo vacío
+                        </v-alert>
+                        <v-alert v-model="alertaExistente" class="mx-auto" type="error"
+                            style="max-width: 500px; top: 400px;" transition="scale-transition">
+                            El canto ya existe
+                        </v-alert>
+                    </v-card>
+                </v-dialog>
+                <v-dialog v-model="dialogEntrada" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de entrada</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de entrada"
+                                v-model="nuevo_canto.nu_entrada"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarEntrada">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de Canto de entrada -->
+                <v-dialog v-model="dialogPiedad" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de piedad</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de piedad"
+                                v-model="nuevo_canto.nu_piedad"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarPiedad">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de Canto de piedad -->
+                <v-dialog v-model="dialogGloria" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de gloria</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de gloria"
+                                v-model="nuevo_canto.nu_gloria"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarGloria">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de Canto de gloria -->
+                <v-dialog v-model="dialogSalmo" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar ritmo para salmo</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el ritmo del salmo"
+                                v-model="nuevo_canto.nu_salmo"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarSalmo">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de ritmo de salmo -->
+                <v-dialog v-model="dialogAleluya" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de Aleluya/Honor y Gloria</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de Aleluya/Honor y Gloria"
+                                v-model="nuevo_canto.nu_aleluya"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarAleluya">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de Canto de aleluya -->
+                <v-dialog v-model="dialogOfertorio" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de ofertorio</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de ofertorio"
+                                v-model="nuevo_canto.nu_ofertorio"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarOfertorio">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de ritmo de ofertorio -->
+                <v-dialog v-model="dialogSanto" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de santo</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de santo"
+                                v-model="nuevo_canto.nu_santo"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarSanto">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de Canto de Santo -->
+                <v-dialog v-model="dialogCordero" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de cordero</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de cordero"
+                                v-model="nuevo_canto.nu_cordero"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarCordero">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de ritmo de Cordero -->
+                <v-dialog v-model="dialogComunion" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de comunión</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de comunión"
+                                v-model="nuevo_canto.nu_comunion"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarComunion">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de Canto de Comunion -->
+                <v-dialog v-model="dialogSalida" max-width="500px" persistent>
+                    <v-card>
+                        <v-card-title>Agregar canto de salida</v-card-title>
+                        <v-container>
+                            <v-text-field label="Inroduzca el canto de salida"
+                                v-model="nuevo_canto.nu_salida"></v-text-field>
+                            <v-card-actions>
+                                <v-btn color="error" @click="cancelarNuevoCanto">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn color="success" @click="GuardarSalida">Guardar</v-btn>
+                            </v-card-actions>
+                        </v-container>
+                    </v-card>
+                </v-dialog><!--Fin del dialogo de ritmo de Salida -->
+            </v-card>
+        </v-container>
+    </v-app>
+</template>
 
 <script>
 export default {
@@ -244,25 +591,42 @@ export default {
     metaInfo: {
         title: 'Vista de administrador',
     },
-    components:{
-    },
     data() {
         return {
             search: '',
+            darkMode: false,
+            drawer: true,
+            alertaIngresado: false,
+            alertaVacio: false,
+            alertaExistente: false,
             // Encabezados Usuarios
             encabezados: [
-                {text: 'Fecha',value: 'mi_fecha'},
-                {text: 'Tipo',value: 'mi_tipo'},
-                {text: 'Acciones', sortable: false, value: 'actions'}
+                { text: 'Fecha', value: 'mi_fecha' },
+                { text: 'Tipo', value: 'mi_tipo' },
+                { text: 'Acciones', sortable: false, value: 'actions' }
             ],
 
+            mini: true,
+
             misas: [],
-            
+
             bm_dialog: false,
             nm_dialog: false,
-            d_dialog:false,
+            d_dialog: false,
+            dialogDelete: false,
+            dialogEntrada: false,
+            dialogPiedad: false,
+            dialogGloria: false,
+            dialogSalmo: false,
+            dialogAleluya: false,
+            dialogOfertorio: false,
+            dialogSanto: false,
+            dialogCordero: false,
+            dialogComunion: false,
+            dialogSalida: false,
             fechaPickerVisible: false,
             mostrarDialogo: false,
+            agregarCanto: false,
 
             nueva_misa: {
                 mi_fecha: '',
@@ -277,46 +641,63 @@ export default {
                 mi_cordero: '',
                 mi_comunion: '',
                 mi_salida: '',
-                mi_comentario: '',
+                mi_comentario: ''
             },
 
-            misasSeleccionadas: [], 
+            nuevo_canto: {
+                nu_entrada: '',
+                nu_piedad: '',
+                nu_gloria: '',
+                nu_salmo: '',
+                nu_aleluya: '',
+                nu_ofertorio: '',
+                nu_santo: '',
+                nu_cordero: '',
+                nu_comunion: '',
+                nu_salida: '',
+            },
 
-            elevation: 'elevation-1',
-            
-            tipo:   ['Ordinario', 'Adviento', 'Cuaresma', 'Festividad','Contrato', 
-                    'XV años', 'Boda', 'Bautizo', 'Oficio', 'Otro'],
+            misasSeleccionadas: [],
+
+            elevation: '-1',
+
+            tipo: ['Ordinario', 'Adviento', 'Cuaresma', 'Festividad', 'XV años', 'Boda',
+                'Bautizo', 'Oficio del Jueves', 'Oficio del Viernes', 'Envío', 'Otro'],
 
             entrada: [],
 
-            piedad:[],
+            piedad: [],
 
-            gloria:[],
+            gloria: [],
 
             salmo: [],
 
-            aleluya:[],
-            
-            ofertorio:[],
-            
-            santo:[],
+            aleluya: [],
+
+            ofertorio: [],
+
+            santo: [],
 
             cordero: [],
 
             comunion: [],
-            
-            salida:[],
 
-            comentario:[]
+            salida: [],
+
+            comentario: [],
+
+            IdDelete: ''
         };
     },
+
     computed: {
         misasFiltradas() {
             return this.misas.filter((misa) =>
-            misa.mi_fecha.toLowerCase().includes(this.searchDate.toLowerCase())
+                misa.mi_fecha.toLowerCase().includes(this.searchDate.toLowerCase())
             );
         },
     },
+
     created() {
         this.llenar_misas();
         this.obtenerDatosCanto('entrada', '/cantos/todos_entrada');
@@ -330,8 +711,12 @@ export default {
         this.obtenerDatosCanto('comunion', '/cantos/todos_comunion');
         this.obtenerDatosCanto('salida', '/cantos/todos_salida');
     },
-    
+
     methods: {
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            this.$vuetify.theme.dark = this.darkMode; // Cambiar dinámicamente el tema oscuro
+        },
 
         async obtenerDatosCanto(nombreArreglo, url) {
             try {
@@ -349,14 +734,27 @@ export default {
             }));
         },
 
-        async eliminar_misa(item) {
-            const body = {
-                mi_id: item.mi_id,
-            };
-            await this.axios.delete('misa/eliminar_misa', {
-                data: body
-            });
-            this.llenar_misas();
+        beforeDelete(item) {
+            this.IdDelete = item
+            console.log('ID a eliminar:', this.IdDelete.mi_id);
+            this.dialogDelete = true
+        },
+
+        async eliminar_misa() {
+            try {
+                const body = {
+                    mi_id: this.IdDelete.mi_id,
+                };
+
+                await this.axios.delete('misa/eliminar_misa', {
+                    data: body
+                });
+
+                this.llenar_misas();
+                this.dialogDelete = false; // Cierra el diálogo después de la eliminación
+            } catch (error) {
+                console.error(error);
+            }
         },
 
         cancelar() {
@@ -375,25 +773,50 @@ export default {
                 mi_salida: '',
                 mi_comentario: '',
             };
+            this.llenar_misas();
             this.d_dialog = false;
             this.nm_dialog = false;
-            this.mostrarDialogo= false;
+            this.mostrarDialogo = false;
             this.bm_dialog = false;
-            this.llenar_misas();
+        },
+
+        cancelarNuevoCanto() {
+            this.dialogEntrada = false
+            this.dialogPiedad = false
+            this.dialogGloria = false
+            this.dialogSalmo = false
+            this.dialogAleluya = false
+            this.dialogOfertorio = false
+            this.dialogSanto = false
+            this.dialogCordero = false
+            this.dialogComunion = false
+            this.dialogSalida = false
+            this.nuevo_canto = {
+                nu_entrada: '',
+                nu_piedad: '',
+                nu_gloria: '',
+                nu_salmo: '',
+                nu_aleluya: '',
+                nu_ofertorio: '',
+                nu_santo: '',
+                nu_cordero: '',
+                nu_comunion: '',
+                nu_salida: ''
+            };
         },
 
         async guardar_misa() {
             if (this.nueva_misa.mi_id) {
                 await this.axios
-                .put(`/misa/editar_misa/${this.nueva_misa.mi_id}`, this.nueva_misa)
-                .then((response) => {
-                    console.log(response.data); // Opcional: muestra la respuesta del servidor si es necesario
-                    this.llenar_misas();
-                    this.cancelar();
-                })
-                .catch((error) => {
-                    console.error(error);
-                });
+                    .put(`/misa/editar_misa/${this.nueva_misa.mi_id}`, this.nueva_misa)
+                    .then((response) => {
+                        console.log(response.data); // Opcional: muestra la respuesta del servidor si es necesario
+                        this.llenar_misas();
+                        this.cancelar();
+                    })
+                    .catch((error) => {
+                        console.error(error);
+                    });
             } else {
                 console.error("ID de misa no definido.");
             }
@@ -420,7 +843,6 @@ export default {
         },
 
         async verDetalles(item) {
-
             const mi_id = item.mi_id;
             const api_data = await this.axios.get(`/misa/misabase/${mi_id}`);
             const detallesMisa = api_data.data;
@@ -431,29 +853,6 @@ export default {
             this.d_dialog = true;
         },
 
-        mostrarDialogoAgregarMisa() {
-            this.nueva_misa = {
-                mi_fecha: '',
-                mi_tipo: '',
-                mi_entrada: '',
-                mi_piedad: '',
-                mi_gloria: '',
-                mi_salmo: '',
-                mi_aleluya: '',
-                mi_ofertorio: '',
-                mi_santo: '',
-                mi_cordero: '',
-                mi_comunion: '',
-                mi_salida: '',
-                mi_comentario: '',
-            };
-            this.mostrarDialogo = true;
-        },
-
-        mostrarDialogoBuscarMisa(){
-            this.bm_dialog = true;
-        },
-
         guardarNuevaMisa() {
             // Realizar acciones para guardar la nueva misa
             // Puedes acceder a los datos de la nueva misa a través de this.nuevaMisa
@@ -461,27 +860,504 @@ export default {
 
             // Ejemplo de envío de datos utilizando Axios:
             this.axios
-            .post('/misa/nueva_misa', this.nueva_misa)
-            .then(() => {
-                // Procesar respuesta exitosa (si es necesario)
-                this.llenar_misas(); // Actualizar la lista de misas
-                this.cancelar(); // Cerrar el diálogo
-            })
-            .catch((error) => {
-                // Procesar error (si es necesario)
-                console.error(error);
-            });
+                .post('/misa/nueva_misa', this.nueva_misa)
+                .then(() => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    this.llenar_misas(); // Actualizar la lista de misas
+                    this.cancelar(); // Cerrar el diálogo
+                })
+                .catch((error) => {
+                    // Procesar error (si es necesario)
+                    console.error(error);
+                });
         },
+
+        GuardarEntrada() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_entrada.trim() === '') {
+                console.error('El canto de entrada no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoEntrada = {
+                ca_entrada: this.nuevo_canto.nu_entrada,
+            };
+
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_entrada', nuevoCantoEntrada)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('entrada', '/cantos/todos_entrada'); // Actualizar la lista de cantos de entrada
+                    this.dialogEntrada = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarPiedad() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_piedad.trim() === '') {
+                console.error('El campo de salmo no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoPiedad = {
+                ca_piedad: this.nuevo_canto.nu_piedad,
+            };
+
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_piedad', nuevoCantoPiedad)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('piedad', '/cantos/todos_piedad'); // Actualizar la lista de cantos de entrada
+                    this.dialogSalmo = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarGloria() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_gloria.trim() === '') {
+                console.error('El campo de salmo no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoGloria = {
+                ca_salmo: this.nuevo_canto.nu_gloria,
+            };
+
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_gloria', nuevoCantoGloria)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('salmo', '/cantos/todos_gloria'); // Actualizar la lista de cantos de entrada
+                    this.dialogGloria = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarSalmo() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_salmo.trim() === '') {
+                console.error('El campo de salmo no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoSalmo = {
+                ca_salmo: this.nuevo_canto.nu_salmo,
+            };
+
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_salmo', nuevoCantoSalmo)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('salmo', '/cantos/todos_salmo'); // Actualizar la lista de cantos de entrada
+                    this.dialogSalmo = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarAleluya() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_aleluya.trim() === '') {
+                console.error('El canto no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoAleluya = {
+                ca_aleluya: this.nuevo_canto.nu_aleluya,
+            };
+
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_aleluya', nuevoCantoAleluya)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('aleluya', '/cantos/todos_aleluya'); // Actualizar la lista de cantos de entrada
+                    this.dialogEntrada = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarOfertorio() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_ofertorio.trim() === '') {
+                console.error('El campo no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoOfertorio = {
+                ca_ofertorio: this.nuevo_canto.nu_ofertorio,
+            };
+
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_ofertorio', nuevoCantoOfertorio)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('ofertorio', '/cantos/todos_ofertorio'); // Actualizar la lista de cantos de entrada
+                    this.dialogSalmo = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarSanto() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_santo.trim() === '') {
+                console.error('El campo no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoSanto = {
+                ca_santo: this.nuevo_canto.nu_santo,
+            };
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_santo', nuevoCantoSanto)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('santo', '/cantos/todos_santo'); // Actualizar la lista de cantos de entrada
+                    this.dialogSanto = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarCordero() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_cordero.trim() === '') {
+                console.error('El campo no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoCordero = {
+                ca_cordero: this.nuevo_canto.nu_cordero,
+            };
+
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_cordero', nuevoCantoCordero)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('cordero', '/cantos/todos_cordero'); // Actualizar la lista de cantos de entrada
+                    this.dialogSalmo = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarComunion() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_comunion.trim() === '') {
+                console.error('El campo no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoComunion = {
+                ca_comunion: this.nuevo_canto.nu_comunion,
+            };
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_comunion', nuevoCantoComunion)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('comunion', '/cantos/todos_comunion'); // Actualizar la lista de cantos de entrada
+                    this.dialogSanto = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        },
+
+        GuardarSalida() {
+            // Verificar si el nuevo canto de entrada no está vacío
+            if (this.nuevo_canto.nu_salida.trim() === '') {
+                console.error('El campo no puede estar vacío.');
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+
+            // Crear el objeto con los datos del nuevo canto de entrada
+            const nuevoCantoSalida = {
+                ca_salida: this.nuevo_canto.nu_salida,
+            };
+
+            // Realizar la operación de guardado en la base de datos utilizando Axios
+            this.axios
+                .post('/cantos/insertar_salida', nuevoCantoSalida)
+                .then((response) => {
+                    // Procesar respuesta exitosa (si es necesario)
+                    console.log('Respuesta del servidor:', response.data);
+                    this.obtenerDatosCanto('salida', '/cantos/todos_salida'); // Actualizar la lista de cantos de entrada
+                    this.dialogSalmo = false; // Cerrar el diálogo
+                    this.alertaIngresado = true;
+                    setTimeout(() => {
+                        this.alertaIngresado = false;
+                    }, 2000);
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        // El servidor respondió con un código de estado fuera del rango 2xx
+                        console.error('Error de respuesta del servidor:', error.response.data);
+                        this.alertaExistente = true;
+                        setTimeout(() => {
+                            this.alertaExistente = false;
+                        }, 2000);
+                    } else if (error.request) {
+                        // La solicitud fue hecha pero no se recibió respuesta
+                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                    } else {
+                        // Otros tipos de errores
+                        console.error('Error general al intentar la solicitud:', error.message);
+                    }
+                }
+                );
+        }
     }
 };
 </script>
 
 <style>
-    .centered-title {
-        text-align: center;
-        margin: auto;
-    }
-    .custom-table {
-    text-align: center; /* Para centrar el texto en las celdas */
-  }
+.centered-title {
+    text-align: center;
+    margin: auto;
+}
+
+.custom-table {
+    text-align: center;
+    /* Para centrar el texto en las celdas */
+}
 </style>

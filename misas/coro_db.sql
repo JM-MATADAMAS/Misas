@@ -90,10 +90,6 @@ CREATE TABLE IF NOT EXISTS misa(
     ON UPDATE CASCADE
     );
     
-CREATE TABLE busqueda(
-	bus_fecha DATE NOT NULL
-	);
-
 /*CREATE TABLE IF NOT EXISTS asistencia (
 	as_fecha DATE NOT NULL,
     as_evento VARCHAR (30) NOT NULL
@@ -166,3 +162,11 @@ ON UPDATE CASCADE;
 INSERT INTO usuario(correo,contrasena)
 	VALUES('javier.matadamas@hotmail.com', 'Dbs32014');
 */
+
+# DELETE FROM canto_entrada WHERE ca_entrada = 'Rápido';
+
+/*ALTER TABLE usuario
+	ADD COLUMN int_nombre VARCHAR (255);*/
+/*
+ALTER TABLE usuario
+	MODIFY int_nombre VARCHAR(255) NOT NULL;*/
