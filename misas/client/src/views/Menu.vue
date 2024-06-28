@@ -2,7 +2,7 @@
 
 <template>
     <v-container style="padding: 112px 50px 10px;">
-        <v-card class="mx-auto" width="500px">
+        <v-card class="mx-auto" max-width="90%" style="width: 100%;">
             <v-card-title>
                 <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
                     hide-details></v-text-field>
@@ -15,7 +15,7 @@
             </v-app-bar>
             <!-- Tabla de Misas -->
             <v-data-table elevation="0" :search="search" :headers="encabezados" :items="misas" :items-per-page="6"
-                style="margin: 0 auto; max-width: 450px">
+                style="margin: 0 auto;">
                 <template v-slot:top>
                     <v-toolbar flat>
                         <v-toolbar-title

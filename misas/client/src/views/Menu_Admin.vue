@@ -57,7 +57,7 @@
             </v-list>
         </v-navigation-drawer>
         <v-container app fluid style="padding-top: 2%">
-            <v-card class="mx-auto my-12" max-width="90%">
+            <v-card class="mx-auto my-12" max-width="90%" style="width: 60%;">
                 <v-card-title>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
                         hide-details></v-text-field>
