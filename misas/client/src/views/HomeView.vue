@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-app style="background-color: #f0f0f0;">
+    <v-app>
       <!-- Barra de navegación -->
       <v-app-bar app color="blue darken-4" dark elevation="0">
         <v-spacer />
@@ -69,7 +69,10 @@ export default {
 
           // Emitir un evento con toda la información del usuario
           this.$emit('usuario-iniciado', usuarioEncontrado);
-
+          localStorage.setItem('Usuario', this.correo,)
+          setTimeout(()=>{
+            localStorage.removeItem('Usuario')
+          },(1000*60*24*1))
           this.contrasena = '';
           this.correo = '';
           this.$router.push('/menu_admin');
@@ -84,9 +87,7 @@ export default {
     },
 
     accederComoInvitado() {
-      // Lógica para acceder a las tablas como invitado
       this.$router.push('/menu');
-      console.log('Acceder como Invitado');
     },
   },
 };

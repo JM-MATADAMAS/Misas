@@ -1,10 +1,9 @@
 <title>Estructuras del coro por misa(Admin)</title>
-
 <template>
-    <v-app app>
+    <v-app>
         <v-app-bar app color="blue darken-4" dark elevation="0">
-            <v-spacer />
-            <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">
+            <v-toolbar-title class="text-xs-center text-sm-left"
+                style='font-family:"Courier New"; font-size:30px; font-weight:bold;'>
                 Admin 😎
             </v-toolbar-title>
             <v-spacer />
@@ -19,11 +18,7 @@
                     Matadamas</v-list-item-title>
             </v-list-item>
             <v-divider />
-            <v-list style="
-                padding-bottom: 0px;
-                padding-top: 0px;
-                padding-right: 0px;
-            ">
+            <v-list style="padding: 0;">
                 <v-list-item-group color="#9575CD">
                     <v-list-item @click="agregarCanto = true">
                         <v-list-item-icon>
@@ -47,28 +42,43 @@
                         </v-list-item-title>
                     </v-list-item>
                 </v-list-item-group>
+                <v-divider />
+                <v-list-item-group color="error">
+                    <v-list-item @click="salir()">
+                        <v-list-item-icon>
+                            <v-icon dark color="error">mdi-logout</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title
+                            :style="{ fontFamily: 'Courier New', fontSize: '20px', fontWeight: 'bold', color: '#FF5252' }">
+                            Salir
+                        </v-list-item-title>
+                    </v-list-item>
+                </v-list-item-group>
             </v-list>
         </v-navigation-drawer>
-        <v-container app style="padding: 112px 50px 10px;">
-            <v-card class="mx-auto" width="500px">
+        <v-container app fluid style="padding-top: 2%">
+            <v-card class="mx-auto my-12" max-width="90%">
                 <v-card-title>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
                         hide-details></v-text-field>
                 </v-card-title>
                 <v-data-table elevation="0" :search="search" :headers="encabezados" :items="misas" :items-per-page="5"
-                    style="margin: 0 auto; max-width: 450px">
+                    class="mx-auto">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title
-                                :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Misas</v-toolbar-title>
+                            <v-toolbar-title class="text-xs-center text-sm-left"
+                                :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">
+                                Misas
+                            </v-toolbar-title>
                             <v-spacer />
-                            <v-btn color="success" outlined elevation="-1" @click="mostrarDialogo = true;">Agregar
-                                Misa</v-btn>
+                            <v-btn color="success" outlined elevation="0" @click="mostrarDialogo = true;">
+                                Agregar Misa
+                            </v-btn>
                         </v-toolbar>
                     </template>
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-row>
-                            <v-col cols="2">
+                            <v-col cols="6" sm="12">
                                 <v-tooltip top color="red darken-3">
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="red darken-3" @click="beforeDelete(item)"
@@ -78,8 +88,6 @@
                                     </template>
                                     <span>Borrar la misa {{ item.mi_fecha }}</span>
                                 </v-tooltip>
-                            </v-col>
-                            <v-col cols="2">
                                 <v-tooltip top color="amber darken-2">
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="amber darken-2" @click="editarMisa(item)"
@@ -89,8 +97,6 @@
                                     </template>
                                     <span>Modificar la misa {{ item.mi_fecha }}</span>
                                 </v-tooltip>
-                            </v-col>
-                            <v-col cols="2">
                                 <v-tooltip top color="teal darken-1">
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="teal darken-1" @click="verDetalles(item)"
@@ -197,37 +203,38 @@
                     <v-card>
                         <v-card-title>Registro de misa</v-card-title>
                         <v-card-text>
-                            <v-container>
-                                <v-row v-for="(item, index) in misas" :key="index">
+                            <v-container v-if="misaSeleccionada">
+                                <v-row>
                                     <v-col cols="6">
-                                        <v-text-field dense label="Fecha" v-model="item.mi_fecha"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Tipo" v-model="item.mi_tipo" disabled></v-text-field>
-                                        <v-text-field dense label="Entrada" v-model="item.mi_entrada"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Piedad" v-model="item.mi_piedad"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Gloria" v-model="item.mi_gloria"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Salmo" v-model="item.mi_salmo"
-                                            disabled></v-text-field>
+                                        <v-text-field dense label="Fecha" v-model="misaSeleccionada.mi_fecha"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Tipo" v-model="misaSeleccionada.mi_tipo"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Entrada" v-model="misaSeleccionada.mi_entrada"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Piedad" v-model="misaSeleccionada.mi_piedad"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Gloria" v-model="misaSeleccionada.mi_gloria"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Salmo" v-model="misaSeleccionada.mi_salmo"
+                                            readonly></v-text-field>
                                     </v-col>
                                     <v-col cols="6">
-                                        <v-text-field dense label="Aleluya/Honor y gloria" v-model="item.mi_aleluya"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Ofertorio" v-model="item.mi_ofertorio"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Santo" v-model="item.mi_santo"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Cordero" v-model="item.mi_cordero"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Comunion" v-model="item.mi_comunion"
-                                            disabled></v-text-field>
-                                        <v-text-field dense label="Salida" v-model="item.mi_salida"
-                                            disabled></v-text-field>
+                                        <v-text-field dense label="Aleluya/Honor y gloria"
+                                            v-model="misaSeleccionada.mi_aleluya" readonly></v-text-field>
+                                        <v-text-field dense label="Ofertorio" v-model="misaSeleccionada.mi_ofertorio"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Santo" v-model="misaSeleccionada.mi_santo"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Cordero" v-model="misaSeleccionada.mi_cordero"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Comunion" v-model="misaSeleccionada.mi_comunion"
+                                            readonly></v-text-field>
+                                        <v-text-field dense label="Salida" v-model="misaSeleccionada.mi_salida"
+                                            readonly></v-text-field>
                                     </v-col>
-                                    <v-textarea outlined label="Comentario" v-model="item.mi_comentario" disabled
-                                        rows="1" auto-grow></v-textarea>
+                                    <v-textarea outlined label="Comentario" v-model="misaSeleccionada.mi_comentario"
+                                        readonly rows="1" auto-grow></v-textarea>
                                 </v-row>
                             </v-container>
                         </v-card-text>
@@ -591,6 +598,7 @@ export default {
     metaInfo: {
         title: 'Vista de administrador',
     },
+
     data() {
         return {
             search: '',
@@ -601,9 +609,9 @@ export default {
             alertaExistente: false,
             // Encabezados Usuarios
             encabezados: [
-                { text: 'Fecha', value: 'mi_fecha' },
-                { text: 'Tipo', value: 'mi_tipo' },
-                { text: 'Acciones', sortable: false, value: 'actions' }
+                { text: 'Fecha', value: 'mi_fecha', align: 'center' },
+                { text: 'Tipo', value: 'mi_tipo', align: 'center' },
+                { text: 'Acciones', sortable: false, value: 'actions', align: 'center' }
             ],
 
             mini: true,
@@ -657,12 +665,12 @@ export default {
                 nu_salida: '',
             },
 
-            misasSeleccionadas: [],
+            misaSeleccionada: null,
 
             elevation: '-1',
 
             tipo: ['Ordinario', 'Adviento', 'Cuaresma', 'Festividad', 'XV años', 'Boda',
-                'Bautizo', 'Oficio del Jueves', 'Oficio del Viernes', 'Envío', 'Otro'],
+                'Bautizo', 'Oficio del Jueves', 'Oficio del Viernes', 'Pascua', 'Envío', 'Otro'],
 
             entrada: [],
 
@@ -688,6 +696,14 @@ export default {
 
             IdDelete: ''
         };
+    },
+
+    mounted() {
+        const token = localStorage.getItem('Usuario')
+        console.log(token)
+        if (!token) {
+            this.$router.push({ path: '/' });
+        }
     },
 
     computed: {
@@ -773,7 +789,7 @@ export default {
                 mi_salida: '',
                 mi_comentario: '',
             };
-            this.llenar_misas();
+            this.misaSeleccionada = null;
             this.d_dialog = false;
             this.nm_dialog = false;
             this.mostrarDialogo = false;
@@ -844,12 +860,10 @@ export default {
 
         async verDetalles(item) {
             const mi_id = item.mi_id;
-            const api_data = await this.axios.get(`/misa/misabase/${mi_id}`);
-            const detallesMisa = api_data.data;
+            const api_data_uno = await this.axios.get(`/misa/misabase/${mi_id}`);
+            const detallesMisa = api_data_uno.data;
 
-            this.misas = []; // Vaciar el arreglo de misas
-            this.misas.push(detallesMisa); // Agregar los detalles de la misa actual al arreglo
-
+            this.misaSeleccionada = detallesMisa; // Establecer la misa seleccionada
             this.d_dialog = true;
         },
 
@@ -1228,7 +1242,7 @@ export default {
                     // Procesar respuesta exitosa (si es necesario)
                     console.log('Respuesta del servidor:', response.data);
                     this.obtenerDatosCanto('cordero', '/cantos/todos_cordero'); // Actualizar la lista de cantos de entrada
-                    this.dialogSalmo = false; // Cerrar el diálogo
+                    this.dialogCordero = false; // Cerrar el diálogo
                     this.alertaIngresado = true;
                     setTimeout(() => {
                         this.alertaIngresado = false;
@@ -1274,7 +1288,7 @@ export default {
                     // Procesar respuesta exitosa (si es necesario)
                     console.log('Respuesta del servidor:', response.data);
                     this.obtenerDatosCanto('comunion', '/cantos/todos_comunion'); // Actualizar la lista de cantos de entrada
-                    this.dialogSanto = false; // Cerrar el diálogo
+                    this.dialogComunion = false; // Cerrar el diálogo
                     this.alertaIngresado = true;
                     setTimeout(() => {
                         this.alertaIngresado = false;
@@ -1322,7 +1336,7 @@ export default {
                     // Procesar respuesta exitosa (si es necesario)
                     console.log('Respuesta del servidor:', response.data);
                     this.obtenerDatosCanto('salida', '/cantos/todos_salida'); // Actualizar la lista de cantos de entrada
-                    this.dialogSalmo = false; // Cerrar el diálogo
+                    this.dialogSalida = false; // Cerrar el diálogo
                     this.alertaIngresado = true;
                     setTimeout(() => {
                         this.alertaIngresado = false;
@@ -1345,6 +1359,12 @@ export default {
                     }
                 }
                 );
+        },
+        salir() {
+            localStorage.clear('Usuario')
+            this.$router.push({
+                path: '/'
+            })
         }
     }
 };
@@ -1359,5 +1379,15 @@ export default {
 .custom-table {
     text-align: center;
     /* Para centrar el texto en las celdas */
+}
+
+@media (max-width: 600px) {
+    .v-toolbar-title {
+        font-size: 24px !important;
+    }
+
+    .v-list-item-title {
+        font-size: 16px !important;
+    }
 }
 </style>

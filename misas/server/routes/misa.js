@@ -11,7 +11,7 @@ router.get('/misa_base', async (req, res) => {
     // Formatear la fecha en cada objeto de misa
     const misaFormateada = misa.map((misaItem) => {
       const fecha = new Date(misaItem.mi_fecha);
-      const fechaFormateada = fecha.toISOString().split('T')[0];
+      const fechaFormateada = fecha.toLocaleDateString();
       return {
         ...misaItem,
         mi_fecha: fechaFormateada,
@@ -42,7 +42,7 @@ router.get('/misabase/:mi_id', async (req, res) => {
 
     // Formatear la fecha en el objeto de misa
     const fecha = new Date(misa[0].mi_fecha);
-    const fechaFormateada = fecha.toISOString().split('T')[0];
+    const fechaFormateada = fecha.toLocaleDateString();
     const misaFormateada = {
       ...misa[0],
       mi_fecha: fechaFormateada,
@@ -104,6 +104,15 @@ router.put('/editar_misa/:mi_id', async (req, res) => {
   try {
     const mi_id = req.params.mi_id;
     const body = req.body;
+
+    // Función para convertir fecha de DD/MM/YYYY a YYYY-MM-DD
+    const convertirFecha = (fecha) => {
+      const [dia, mes, año] = fecha.split('/');
+      return `${año}-${mes}-${dia}`;
+    };
+
+    const fechaFormateada = convertirFecha(body.mi_fecha);
+
     const query = 'UPDATE misa SET ' +
                   'mi_fecha = ?, mi_tipo = ?, mi_entrada = ?, mi_piedad = ?, ' +
                   'mi_gloria = ?, mi_salmo = ?, mi_aleluya = ?, mi_ofertorio = ?, ' +
@@ -111,7 +120,7 @@ router.put('/editar_misa/:mi_id', async (req, res) => {
                   'WHERE mi_id = ?';
 
     await connection.query(query, [
-      body.mi_fecha,
+      fechaFormateada,
       body.mi_tipo,
       body.mi_entrada,
       body.mi_piedad,
@@ -126,12 +135,11 @@ router.put('/editar_misa/:mi_id', async (req, res) => {
       body.mi_comentario,
       mi_id
     ]);
+
     res.json('Ok');
   } catch (error) {
     console.log(error);
-    res.json({
-      error: error
-    });
+    res.json({ error: error.message });
   }
 });
 

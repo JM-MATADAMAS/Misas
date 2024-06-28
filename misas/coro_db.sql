@@ -1,4 +1,4 @@
-/*DROP DATABASE IF EXISTS coro_db;
+DROP DATABASE IF EXISTS coro_db;
 
 CREATE DATABASE IF NOT EXISTS coro_db;
 
@@ -90,13 +90,13 @@ CREATE TABLE IF NOT EXISTS misa(
     ON UPDATE CASCADE
     );
     
-/*CREATE TABLE IF NOT EXISTS asistencia (
+CREATE TABLE IF NOT EXISTS asistencia (
 	as_fecha DATE NOT NULL,
     as_evento VARCHAR (30) NOT NULL
 	);
 
 
-/*INSERT INTO canto_entrada (ca_entrada)
+INSERT INTO canto_entrada (ca_entrada)
 	VALUES ('Venimos hoy a tu altar'), ('Vienen con alegría'),('Den al señor sus alabanzas'),('Aquí estoy señor'), 
 			('Al fin'),('Quince años'),('Que alegría cuando me dijeron'),('Tú eres fiel'), ('Que viva mi cristo'), 
 			('En torno a tu altar'),( '*No hay*'), ('*No aplica*'); 
@@ -140,10 +140,10 @@ INSERT INTO misa (mi_fecha, mi_tipo, mi_entrada, mi_piedad, mi_gloria, mi_salmo,
             'Copia del canto de gloria y de santo, mala ejecución del canto de comunión, desde el intento de armonización hasta subir la nota al final'),
             ('2023-07-09','Ordinario', 'Venimos hoy a tu altar', 'Popular', '90', 'Rápido', 'Popular',
             'Tómalo, acéptalo', 'Gabi', 'Marcha', 'Envíame a mi', 'Cristo no defrauda','');
-*/	
+
 
 USE coro_db;
-/*
+
 CREATE TABLE IF NOT EXISTS usuario (
     id_usuario INT NOT NULL AUTO_INCREMENT,
     correo VARCHAR(255) NOT NULL,
@@ -161,12 +161,15 @@ ON UPDATE CASCADE;
 
 INSERT INTO usuario(correo,contrasena)
 	VALUES('javier.matadamas@hotmail.com', 'Dbs32014');
-*/
 
-# DELETE FROM canto_entrada WHERE ca_entrada = 'Rápido';
 
-/*ALTER TABLE usuario
-	ADD COLUMN int_nombre VARCHAR (255);*/
-/*
+DELETE FROM canto_entrada WHERE ca_entrada = 'Rápido';
+
 ALTER TABLE usuario
-	MODIFY int_nombre VARCHAR(255) NOT NULL;*/
+	ADD COLUMN int_nombre VARCHAR (255);
+
+ALTER TABLE usuario
+	MODIFY int_nombre VARCHAR(255) NOT NULL;
+
+ALTER TABLE canto_entrada MODIFY COLUMN ca_entrada VARCHAR (60);
+ALTER TABLE misa MODIFY COLUMN mi_entrada VARCHAR (60);
