@@ -4,3 +4,7 @@ module.exports = defineConfig({
     'vuetify'
   ]
 })
+
+module.exports = {
+  publicPath: "/template-project-vue-stylelint/"
+}
