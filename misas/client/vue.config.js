@@ -6,5 +6,7 @@ module.exports = defineConfig({
 })
 
 module.exports = {
-  publicPath: "/template-project-vue-stylelint/"
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/Misas/misas/client/'
+    : '/'
 }
