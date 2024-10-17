@@ -2,8 +2,8 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Meta from 'vue-meta'
 import HomeView from '../views/HomeView.vue'
-import Menu from '../views/Menu.vue' // Corregir la ruta de importación
-import Menu_Admin from '../views/Menu_Admin.vue' // Corregir la ruta de importación
+import Menu from '../views/Menu/Menu.vue' // Corregir la ruta de importación
+import Menu_Admin from '../views/Menu_Admin/Menu_Admin.vue' // Corregir la ruta de importación
 
 Vue.use(VueRouter)
 Vue.use(Meta)

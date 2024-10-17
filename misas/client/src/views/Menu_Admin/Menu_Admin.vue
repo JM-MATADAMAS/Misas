@@ -1,21 +1,31 @@
 <title>Estructuras del coro por misa(Admin)</title>
 <template>
     <v-app>
-        <v-app-bar app color="blue darken-4" dark elevation="0">
-            <v-toolbar-title class="text-xs-center text-sm-left"
-                style='font-family:"Courier New"; font-size:30px; font-weight:bold;'>
-                Admin 😎
-            </v-toolbar-title>
-            <v-spacer />
-        </v-app-bar>
-        <v-navigation-drawer v-model="drawer" app class="pt-2" elevation="0" :mini-variant.sync="mini" permanent
-            expand-on-hover>
+        <v-btn  
+            @click="toggleDrawer" 
+            class="floating-button"
+            color="primary"
+            plain 
+        >
+            <v-icon>mdi-menu</v-icon>
+        </v-btn>
+        <v-navigation-drawer
+            v-model="drawer"
+            app
+            class="pt-2"
+            elevation="0"
+            :mini-variant.sync="mini"
+            expand-on-hover
+            :clipped="$vuetify.breakpoint.width >= 700"
+            :temporary="$vuetify.breakpoint.width < 700" 
+        >
             <v-list-item class="px-2">
                 <v-list-item-avatar>
-                    <v-img src="../../../messi_mundial.webp"></v-img>
+                    <v-img src="../../../../messi_mundial.webp"></v-img>
                 </v-list-item-avatar>
-                <v-list-item-title :style="{ fontFamily: 'Courier New', fontSize: '18px', fontWeight: 'bold' }">Javier
-                    Matadamas</v-list-item-title>
+                <v-list-item-title class="font-weight-bold" style="font-family: 'Courier New';">
+                    Javier Matadamas
+                </v-list-item-title>
             </v-list-item>
             <v-divider />
             <v-list style="padding: 0;">
@@ -24,8 +34,7 @@
                         <v-list-item-icon>
                             <v-icon color="deep-purple lighten-2">mdi-database-plus</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title
-                            :style="{ fontFamily: 'Courier New', fontSize: '20px', fontWeight: 'bold', color: '#9575CD' }">
+                        <v-list-item-title class="font-weight-bold" style="font-family: 'Courier New';">
                             Agregar canto
                         </v-list-item-title>
                     </v-list-item>
@@ -36,9 +45,19 @@
                         <v-list-item-icon>
                             <v-icon dark color="primary">mdi-opacity</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title
-                            :style="{ fontFamily: 'Courier New', fontSize: '20px', fontWeight: 'bold', color: '#1976D2' }">
+                        <v-list-item-title class="font-weight-bold" style="font-family: 'Courier New';">
                             Cambiar Tema
+                        </v-list-item-title>
+                    </v-list-item>
+                </v-list-item-group>
+                <v-divider />
+                <v-list-item-group color="success">
+                    <v-list-item @click="abrirCuadernillo">
+                        <v-list-item-icon>
+                            <v-icon dark color="success">mdi-book-open-variant</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title class="font-weight-bold" style="font-family: 'Courier New';">
+                            Cuadernillo
                         </v-list-item-title>
                     </v-list-item>
                 </v-list-item-group>
@@ -48,38 +67,37 @@
                         <v-list-item-icon>
                             <v-icon dark color="error">mdi-logout</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title
-                            :style="{ fontFamily: 'Courier New', fontSize: '20px', fontWeight: 'bold', color: '#FF5252' }">
+                        <v-list-item-title class="font-weight-bold" style="font-family: 'Courier New';">
                             Salir
                         </v-list-item-title>
                     </v-list-item>
                 </v-list-item-group>
             </v-list>
         </v-navigation-drawer>
-        <v-container app fluid style="padding-top: 2%">
-            <v-card class="mx-auto my-12" max-width="90%" style="width: 60%;">
+
+        <v-container app fluid class="py-2">
+            <v-card class="mx-auto" max-width="90%" style="width: auto; min-width: 300px;">
                 <v-card-title>
                     <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line
                         hide-details></v-text-field>
                 </v-card-title>
-                <v-data-table elevation="0" :search="search" :headers="encabezados" :items="misas" :items-per-page="5"
+                <v-data-table :search="search" :headers="encabezados" :items="misas" :items-per-page="5"
                     class="mx-auto">
                     <template v-slot:top>
                         <v-toolbar flat>
-                            <v-toolbar-title class="text-xs-center text-sm-left"
-                                :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">
+                            <v-toolbar-title class="font-weight-bold" style="font-family: 'Courier New';">
                                 Misas
                             </v-toolbar-title>
-                            <v-spacer />
-                            <v-btn color="success" outlined elevation="0" @click="mostrarDialogo = true;">
+                            <v-spacer/>
+                            <v-btn color="success" outlined @click="mostrarDialogo = true">
                                 Agregar Misa
                             </v-btn>
                         </v-toolbar>
                     </template>
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-row>
-                            <v-col cols="6" sm="12">
-                                <v-tooltip top color="red darken-3">
+                            <v-col cols="12" sm="12">
+                                <v-tooltip top>
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="red darken-3" @click="beforeDelete(item)"
                                             v-on="on">
@@ -88,7 +106,7 @@
                                     </template>
                                     <span>Borrar la misa {{ item.mi_fecha }}</span>
                                 </v-tooltip>
-                                <v-tooltip top color="amber darken-2">
+                                <v-tooltip top>
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="amber darken-2" @click="editarMisa(item)"
                                             v-on="on">
@@ -97,7 +115,7 @@
                                     </template>
                                     <span>Modificar la misa {{ item.mi_fecha }}</span>
                                 </v-tooltip>
-                                <v-tooltip top color="teal darken-1">
+                                <v-tooltip top>
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="teal darken-1" @click="verDetalles(item)"
                                             v-on="on">
@@ -125,63 +143,63 @@
                                                 <v-text-field dense v-model="nueva_misa.mi_fecha" label="Fecha" readonly
                                                     v-on="on"></v-text-field>
                                             </template>
-                                            <v-date-picker show-adjacent-months
-                                                v-model="nueva_misa.mi_fecha"></v-date-picker>
+                                            <v-date-picker show-adjacent-months v-model="nueva_misa.mi_fecha"
+                                                @keydown.enter="guardar_misa"></v-date-picker>
                                         </v-menu>
                                     </v-col>
                                     <v-col cols="6" align-self="auto">
-                                        <v-select dense v-model="nueva_misa.mi_tipo" :items="tipo"
-                                            label="Tipo"></v-select>
+                                        <v-select dense v-model="nueva_misa.mi_tipo" :items="tipo" label="Tipo"
+                                            @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                 </v-row>
                                 <v-row>
                                     <v-col cols="6">
-                                        <v-select dense v-model="nueva_misa.mi_entrada" :items="entrada"
-                                            label="Entrada"></v-select>
+                                        <v-select dense v-model="nueva_misa.mi_entrada" :items="entrada" label="Entrada"
+                                            @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                     <v-col cols="6">
-                                        <v-select dense v-model="nueva_misa.mi_piedad" :items="piedad"
-                                            label="Piedad"></v-select>
-                                    </v-col>
-                                </v-row>
-                                <v-row>
-                                    <v-col cols="6">
-                                        <v-select dense v-model="nueva_misa.mi_gloria" :items="gloria"
-                                            label="Gloria"></v-select>
-                                    </v-col>
-                                    <v-col cols="6">
-                                        <v-select dense v-model="nueva_misa.mi_salmo" :items="salmo"
-                                            label="Salmo"></v-select>
+                                        <v-select dense v-model="nueva_misa.mi_piedad" :items="piedad" label="Piedad"
+                                            @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                 </v-row>
                                 <v-row>
                                     <v-col cols="6">
-                                        <v-select dense v-model="nueva_misa.mi_aleluya" :items="aleluya"
-                                            label="Aleluya"></v-select>
+                                        <v-select dense v-model="nueva_misa.mi_gloria" :items="gloria" label="Gloria"
+                                            @keydown.enter="guardar_misa"></v-select>
+                                    </v-col>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_salmo" :items="salmo" label="Salmo"
+                                            @keydown.enter="guardar_misa"></v-select>
+                                    </v-col>
+                                </v-row>
+                                <v-row>
+                                    <v-col cols="6">
+                                        <v-select dense v-model="nueva_misa.mi_aleluya" :items="aleluya" label="Aleluya"
+                                            @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                     <v-col cols="6">
                                         <v-select dense v-model="nueva_misa.mi_ofertorio" :items="ofertorio"
-                                            label="Ofertorio"></v-select>
+                                            label="Ofertorio" @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                 </v-row>
                                 <v-row>
                                     <v-col cols="6">
-                                        <v-select dense v-model="nueva_misa.mi_santo" :items="santo"
-                                            label="Santo"></v-select>
+                                        <v-select dense v-model="nueva_misa.mi_santo" :items="santo" label="Santo"
+                                            @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                     <v-col cols="6">
-                                        <v-select dense v-model="nueva_misa.mi_cordero" :items="cordero"
-                                            label="Cordero"></v-select>
+                                        <v-select dense v-model="nueva_misa.mi_cordero" :items="cordero" label="Cordero"
+                                            @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                 </v-row>
                                 <v-row>
                                     <v-col cols="6">
                                         <v-select dense v-model="nueva_misa.mi_comunion" :items="comunion"
-                                            label="Comunión"></v-select>
+                                            label="Comunión" @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                     <v-col cols="6">
-                                        <v-select dense v-model="nueva_misa.mi_salida" :items="salida"
-                                            label="Salida"></v-select>
+                                        <v-select dense v-model="nueva_misa.mi_salida" :items="salida" label="Salida"
+                                            @keydown.enter="guardar_misa"></v-select>
                                     </v-col>
                                 </v-row>
                                 <v-row>
@@ -352,97 +370,101 @@
                             <v-btn icon dark @click="agregarCanto = false">
                                 <v-icon>mdi-close</v-icon>
                             </v-btn>
-                            <v-toolbar-title
-                                :style="{ fontFamily: 'Courier New', fontSize: '24px', fontWeight: 'bold' }">Agregar
-                                canto</v-toolbar-title>
+                            <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '24px', fontWeight: 'bold' }">
+                                Agregar canto
+                            </v-toolbar-title>
                             <v-spacer></v-spacer>
                         </v-toolbar>
+
                         <v-list dense>
                             <v-list-item>
-                                <v-col cols="2">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogEntrada = true">
-                                            Canto de entrada
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
-                                <v-col cols="2">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogPiedad = true">
-                                            Canto de piedad
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
-                                <v-col cols="2">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogGloria = true">
-                                            Canto de gloria
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
-                                <v-col cols="2">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogSalmo = true">
-                                            Salmo
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
-                                <v-col cols="4">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogAleluya = true">
-                                            Canto de aleluya / honor y gloria
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
+                                <v-row>
+                                    <v-col cols="12" sm="6" md="2">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogEntrada = true">
+                                                Canto de entrada
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="2">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogPiedad = true">
+                                                Canto de piedad
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="2">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogGloria = true">
+                                                Canto de gloria
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="2">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogSalmo = true">
+                                                Salmo
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                    <v-col cols="12" md="4">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogAleluya = true">
+                                                Canto de aleluya / honor y gloria
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                </v-row>
                             </v-list-item>
+
                             <v-list-item>
-                                <v-col cols="2">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogOfertorio = true">
-                                            Canto de ofertorio
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
-                                <v-col cols="2">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogSanto = true">
-                                            Canto de santo
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
-                                <v-col cols="2">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogCordero = true">
-                                            Canto de cordero
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
-                                <v-col cols="2">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogComunion = true">
-                                            Canto de comunión
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
-                                <v-col cols="4">
-                                    <v-list-item-content>
-                                        <v-btn @click="dialogSalida = true">
-                                            Canto de salida
-                                        </v-btn>
-                                    </v-list-item-content>
-                                </v-col>
+                                <v-row>
+                                    <v-col cols="12" sm="6" md="2">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogOfertorio = true">
+                                                Canto de ofertorio
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="2">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogSanto = true">
+                                                Canto de santo
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="2">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogCordero = true">
+                                                Canto de cordero
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                    <v-col cols="12" sm="6" md="2">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogComunion = true">
+                                                Canto de comunión
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                    <v-col cols="12" md="4">
+                                        <v-list-item-content>
+                                            <v-btn @click="dialogSalida = true">
+                                                Canto de salida
+                                            </v-btn>
+                                        </v-list-item-content>
+                                    </v-col>
+                                </v-row>
                             </v-list-item>
                         </v-list>
-                        <v-alert v-model="alertaIngresado" class="mx-auto" type="success" max-width="500px"
-                            transition="scale-transition">
+
+                        <v-alert v-model="alertaIngresado" class="mx-auto" type="success" max-width="500px" transition="scale-transition">
                             El canto se ingresó correctamente
                         </v-alert>
-                        <v-alert v-model="alertaVacio" class="mx-auto" type="error"
-                            style="max-width: 500px; top: 400px;" transition="scale-transition">
+                        <v-alert v-model="alertaVacio" class="mx-auto" type="error" max-width="500px" transition="scale-transition">
                             Campo vacío
                         </v-alert>
-                        <v-alert v-model="alertaExistente" class="mx-auto" type="error"
-                            style="max-width: 500px; top: 400px;" transition="scale-transition">
+                        <v-alert v-model="alertaExistente" class="mx-auto" type="error" max-width="500px" transition="scale-transition">
                             El canto ya existe
                         </v-alert>
                     </v-card>
@@ -667,6 +689,10 @@ export default {
 
             misaSeleccionada: null,
 
+            drawer: false,  // Controla la visibilidad del panel lateral
+
+            mini: false,    // Controla si el panel lateral es mini o no
+
             elevation: '-1',
 
             tipo: ['Ordinario', 'Adviento', 'Cuaresma', 'Festividad', 'XV años', 'Boda',
@@ -700,7 +726,6 @@ export default {
 
     mounted() {
         const token = localStorage.getItem('Usuario')
-        console.log(token)
         if (!token) {
             this.$router.push({ path: '/' });
         }
@@ -729,9 +754,17 @@ export default {
     },
 
     methods: {
+        toggleDrawer() {
+            this.drawer = !this.drawer;
+        },
+
         toggleDarkMode() {
             this.darkMode = !this.darkMode;
             this.$vuetify.theme.dark = this.darkMode; // Cambiar dinámicamente el tema oscuro
+        },
+
+        abrirCuadernillo() {
+            window.open('https://drive.google.com/file/d/1KFy3SvvgoxGO_6A7-jySlt3RFrqUqHgi/view', '_blank')
         },
 
         async obtenerDatosCanto(nombreArreglo, url) {
@@ -1379,6 +1412,14 @@ export default {
 .custom-table {
     text-align: center;
     /* Para centrar el texto en las celdas */
+}
+
+.floating-button {
+  /*position: fixed;*/
+  top: 5px;       /* Ajusta esta distancia según lo necesites */
+  left: 0vh;     /* Ajusta esta distancia según lo necesites */
+  /*z-index: 1000;   /* Asegúrate de que esté por encima de otros elementos */
+  /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Sombra para hacer que el botón resalte */
 }
 
 @media (max-width: 600px) {

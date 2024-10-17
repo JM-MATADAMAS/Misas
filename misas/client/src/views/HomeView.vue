@@ -5,7 +5,7 @@
       <v-app-bar app color="blue darken-4" dark elevation="0">
         <v-spacer />
         <v-toolbar-title :style="{ fontFamily: 'Courier New', fontSize: '30px', fontWeight: 'bold' }">Menú Principal
-          </v-toolbar-title>
+        </v-toolbar-title>
         <v-spacer />
       </v-app-bar>
       <!-- Contenido del menú -->
@@ -17,9 +17,14 @@
               <v-spacer />
               <v-card-title style="margin: 0 auto; text-align: center;">Iniciar Sesión</v-card-title>
               <v-card-text>
-                <v-text-field v-model="correo" label="Correo"></v-text-field>
-                <v-text-field v-model="contrasena" label="Contraseña" type="password"></v-text-field>
-                <v-btn elevation="-1" block @click="iniciarSesion" dark color="blue darken-4">Iniciar Sesión</v-btn>
+                <v-text-field v-model="correo" label="Correo" @keydown.enter="iniciarSesion"></v-text-field>
+
+                <v-text-field v-model="contrasena" label="Contraseña" type="password"
+                  @keydown.enter="iniciarSesion"></v-text-field>
+
+                <v-btn elevation="-1" block @click="iniciarSesion" dark color="blue darken-4">
+                  Iniciar Sesión
+                </v-btn>
               </v-card-text>
             </v-card>
           </v-col>
@@ -53,13 +58,12 @@ export default {
         const correo = this.correo;
         const contrasena = this.contrasena;
         // Manejar la respuesta del servidor, por ejemplo, redirigir a la página de misas
-        const response = await this.axios.post('/usuarios/iniciar_sesion', {
+        const response = await this.axios.post('http://localhost:3000/usuarios/iniciar_sesion', {
           correo,
           contrasena
         });
 
         const usuarioEncontrado = response.data;
-        console.log('Usuario recibido del servidor:', usuarioEncontrado);
 
         if (usuarioEncontrado) {
           // Obtener más información del usuario si es necesario
@@ -70,9 +74,9 @@ export default {
           // Emitir un evento con toda la información del usuario
           this.$emit('usuario-iniciado', usuarioEncontrado);
           localStorage.setItem('Usuario', this.correo,)
-          setTimeout(()=>{
+          setTimeout(() => {
             localStorage.removeItem('Usuario')
-          },(1000*60*24*1))
+          }, (1000 * 60 * 24 * 1))
           this.contrasena = '';
           this.correo = '';
           this.$router.push('/menu_admin');
@@ -95,7 +99,7 @@ export default {
 
 <style>
 .centered-title {
-    text-align: center;
-    margin: auto;
+  text-align: center;
+  margin: auto;
 }
 </style>
