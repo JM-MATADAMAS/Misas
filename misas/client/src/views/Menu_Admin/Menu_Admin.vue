@@ -725,7 +725,7 @@ export default {
     },
 
     mounted() {
-        const token = localStorage.getItem('Usuario')
+        const token = localStorage.getItem('token')
         if (!token) {
             this.$router.push({ path: '/' });
         }

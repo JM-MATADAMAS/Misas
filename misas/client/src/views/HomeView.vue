@@ -66,17 +66,12 @@ export default {
         const usuarioEncontrado = response.data;
 
         if (usuarioEncontrado) {
-          // Obtener más información del usuario si es necesario
-          const login_correo = this.correo;
-          const api_data = await this.axios.get('/usuarios/un_usuario/' + login_correo.toString());
-          const usuarioCompleto = api_data.data;
-
           // Emitir un evento con toda la información del usuario
           this.$emit('usuario-iniciado', usuarioEncontrado);
-          localStorage.setItem('Usuario', this.correo,)
+          localStorage.setItem('token', response.data.contrasena,)
           setTimeout(() => {
-            localStorage.removeItem('Usuario')
-          }, (1000 * 60 * 24 * 1))
+            localStorage.removeItem('token')
+          }, (1000 * 60 * 60 * 1))
           this.contrasena = '';
           this.correo = '';
           this.$router.push('/menu_admin');
