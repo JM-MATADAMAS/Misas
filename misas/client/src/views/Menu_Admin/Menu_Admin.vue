@@ -97,7 +97,7 @@
                     <template v-slot:[`item.actions`]="{ item }">
                         <v-row>
                             <v-col cols="12" sm="12">
-                                <v-tooltip top>
+                                <v-tooltip top color="red darken-3">
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="red darken-3" @click="beforeDelete(item)"
                                             v-on="on">
@@ -106,7 +106,7 @@
                                     </template>
                                     <span>Borrar la misa {{ item.mi_fecha }}</span>
                                 </v-tooltip>
-                                <v-tooltip top>
+                                <v-tooltip top color="amber darken-2">
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="amber darken-2" @click="editarMisa(item)"
                                             v-on="on">
@@ -115,7 +115,7 @@
                                     </template>
                                     <span>Modificar la misa {{ item.mi_fecha }}</span>
                                 </v-tooltip>
-                                <v-tooltip top>
+                                <v-tooltip top color="teal darken-1">
                                     <template #activator="{ on, attrs }">
                                         <v-btn v-bind="attrs" icon color="teal darken-1" @click="verDetalles(item)"
                                             v-on="on">
@@ -143,8 +143,12 @@
                                                 <v-text-field dense v-model="nueva_misa.mi_fecha" label="Fecha" readonly
                                                     v-on="on"></v-text-field>
                                             </template>
-                                            <v-date-picker show-adjacent-months v-model="nueva_misa.mi_fecha"
-                                                @keydown.enter="guardar_misa"></v-date-picker>
+                                            <v-date-picker
+                                                v-if="nueva_misa.mi_fecha"
+                                                show-adjacent-months
+                                                v-model="nueva_misa.mi_fecha"
+                                                @keydown.enter="guardar_misa"
+                                            />
                                         </v-menu>
                                     </v-col>
                                     <v-col cols="6" align-self="auto">
@@ -341,12 +345,12 @@
                                     </v-col>
                                 </v-row>
                             </v-container>
+                            <v-card-actions>
+                                <v-btn elevation="-1" color="error" @click="cancelar">Cancelar</v-btn>
+                                <v-spacer />
+                                <v-btn elevation="-1" color="success" @click="guardarNuevaMisa">Guardar</v-btn>
+                            </v-card-actions>
                         </v-card-text>
-                        <v-card-actions>
-                            <v-btn elevation="-1" color="error" @click="cancelar">Cancelar</v-btn>
-                            <v-spacer />
-                            <v-btn elevation="-1" color="success" @click="guardarNuevaMisa">Guardar</v-btn>
-                        </v-card-actions>
                     </v-card>
                 </v-dialog>
                 <v-dialog v-model="dialogDelete" max-width="350" persistent>
@@ -629,7 +633,7 @@ export default {
             alertaIngresado: false,
             alertaVacio: false,
             alertaExistente: false,
-            // Encabezados Usuarios
+
             encabezados: [
                 { text: 'Fecha', value: 'mi_fecha', align: 'center' },
                 { text: 'Tipo', value: 'mi_tipo', align: 'center' },
