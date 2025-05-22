@@ -40,6 +40,19 @@
                     </v-list-item>
                 </v-list-item-group>
                 <v-divider />
+                <v-list style="padding: 0;">
+                    <!-- Botón para redirigir al apartado de eliminar canto -->
+                    <v-list-item 
+                        link 
+                        @click="$router.push('/menu_admin/Quitar_canto')"
+                    >
+                        <v-list-item-icon>
+                            <v-icon color="red">mdi-database-minus</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title class="font-weight-bold" style="font-family: 'Courier New';">Eliminar Canto</v-list-item-title>
+                    </v-list-item>
+                </v-list>
+                <v-divider />
                 <v-list-item-group color="primary">
                     <v-list-item @click="toggleDarkMode">
                         <v-list-item-icon>
@@ -745,16 +758,16 @@ export default {
 
     created() {
         this.llenar_misas();
-        this.obtenerDatosCanto('entrada', '/cantos/todos_entrada');
-        this.obtenerDatosCanto('piedad', '/cantos/todos_piedad');
-        this.obtenerDatosCanto('gloria', '/cantos/todos_gloria');
-        this.obtenerDatosCanto('salmo', '/cantos/todos_salmo');
-        this.obtenerDatosCanto('aleluya', '/cantos/todos_aleluya');
-        this.obtenerDatosCanto('ofertorio', '/cantos/todos_ofertorio');
-        this.obtenerDatosCanto('santo', '/cantos/todos_santo');
-        this.obtenerDatosCanto('cordero', '/cantos/todos_cordero');
-        this.obtenerDatosCanto('comunion', '/cantos/todos_comunion');
-        this.obtenerDatosCanto('salida', '/cantos/todos_salida');
+        this.obtenerDatosCanto('entrada', '/cantos/todos/entrada');
+        this.obtenerDatosCanto('piedad', '/cantos/todos/piedad');
+        this.obtenerDatosCanto('gloria', '/cantos/todos/gloria');
+        this.obtenerDatosCanto('salmo', '/cantos/todos/salmo');
+        this.obtenerDatosCanto('aleluya', '/cantos/todos/aleluya');
+        this.obtenerDatosCanto('ofertorio', '/cantos/todos/ofertorio');
+        this.obtenerDatosCanto('santo', '/cantos/todos/santo');
+        this.obtenerDatosCanto('cordero', '/cantos/todos/cordero');
+        this.obtenerDatosCanto('comunion', '/cantos/todos/comunion');
+        this.obtenerDatosCanto('salida', '/cantos/todos/salida');
     },
 
     methods: {
@@ -923,480 +936,86 @@ export default {
                 });
         },
 
+        async guardarCanto(tipo, valor) {
+            // Verificar si el valor del canto no está vacío
+            if (valor.trim() === '') {
+                console.error(`El canto de ${tipo} no puede estar vacío.`);
+                this.alertaVacio = true;
+                setTimeout(() => {
+                    this.alertaVacio = false;
+                }, 2000);
+                return;
+            }
+
+            // Crear el objeto con los datos del nuevo canto
+            const nuevoCanto = {
+                tipo: tipo,
+                nombre: valor,
+            };
+
+            try {
+                // Realizar la operación de guardado en la base de datos utilizando Axios
+                const response = await this.axios.post('/cantos/insertar', nuevoCanto);
+                console.log('Respuesta del servidor:', response.data);
+
+                // Actualizar la lista de cantos del tipo correspondiente
+                await this.obtenerDatosCanto(tipo, `/cantos/todos/${tipo}`);
+
+                // Cerrar el diálogo correspondiente
+                this[`dialog${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`] = false;
+
+                // Mostrar alerta de éxito
+                this.alertaIngresado = true;
+                setTimeout(() => {
+                    this.alertaIngresado = false;
+                }, 2000);
+            } catch (error) {
+                if (error.response) {
+                    console.error('Error de respuesta del servidor:', error.response.data);
+                    this.alertaExistente = true;
+                    setTimeout(() => {
+                        this.alertaExistente = false;
+                    }, 2000);
+                } else if (error.request) {
+                    console.error('Error de solicitud sin respuesta del servidor:', error.request);
+                } else {
+                    console.error('Error general al intentar la solicitud:', error.message);
+                }
+            }
+        },
+
+        // Ejemplo de cómo llamar al método genérico para guardar un canto
         GuardarEntrada() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_entrada.trim() === '') {
-                console.error('El canto de entrada no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoEntrada = {
-                ca_entrada: this.nuevo_canto.nu_entrada,
-            };
-
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_entrada', nuevoCantoEntrada)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('entrada', '/cantos/todos_entrada'); // Actualizar la lista de cantos de entrada
-                    this.dialogEntrada = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('entrada', this.nuevo_canto.nu_entrada);
         },
-
         GuardarPiedad() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_piedad.trim() === '') {
-                console.error('El campo de salmo no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoPiedad = {
-                ca_piedad: this.nuevo_canto.nu_piedad,
-            };
-
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_piedad', nuevoCantoPiedad)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('piedad', '/cantos/todos_piedad'); // Actualizar la lista de cantos de entrada
-                    this.dialogSalmo = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('piedad', this.nuevo_canto.nu_piedad);
         },
-
         GuardarGloria() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_gloria.trim() === '') {
-                console.error('El campo de salmo no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoGloria = {
-                ca_salmo: this.nuevo_canto.nu_gloria,
-            };
-
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_gloria', nuevoCantoGloria)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('salmo', '/cantos/todos_gloria'); // Actualizar la lista de cantos de entrada
-                    this.dialogGloria = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('gloria', this.nuevo_canto.nu_gloria);
         },
-
         GuardarSalmo() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_salmo.trim() === '') {
-                console.error('El campo de salmo no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoSalmo = {
-                ca_salmo: this.nuevo_canto.nu_salmo,
-            };
-
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_salmo', nuevoCantoSalmo)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('salmo', '/cantos/todos_salmo'); // Actualizar la lista de cantos de entrada
-                    this.dialogSalmo = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('salmo', this.nuevo_canto.nu_salmo);
         },
-
         GuardarAleluya() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_aleluya.trim() === '') {
-                console.error('El canto no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoAleluya = {
-                ca_aleluya: this.nuevo_canto.nu_aleluya,
-            };
-
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_aleluya', nuevoCantoAleluya)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('aleluya', '/cantos/todos_aleluya'); // Actualizar la lista de cantos de entrada
-                    this.dialogEntrada = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('aleluya', this.nuevo_canto.nu_aleluya);
         },
-
         GuardarOfertorio() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_ofertorio.trim() === '') {
-                console.error('El campo no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoOfertorio = {
-                ca_ofertorio: this.nuevo_canto.nu_ofertorio,
-            };
-
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_ofertorio', nuevoCantoOfertorio)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('ofertorio', '/cantos/todos_ofertorio'); // Actualizar la lista de cantos de entrada
-                    this.dialogSalmo = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('ofertorio', this.nuevo_canto.nu_ofertorio);
         },
-
         GuardarSanto() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_santo.trim() === '') {
-                console.error('El campo no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoSanto = {
-                ca_santo: this.nuevo_canto.nu_santo,
-            };
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_santo', nuevoCantoSanto)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('santo', '/cantos/todos_santo'); // Actualizar la lista de cantos de entrada
-                    this.dialogSanto = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('santo', this.nuevo_canto.nu_santo);
         },
-
         GuardarCordero() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_cordero.trim() === '') {
-                console.error('El campo no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoCordero = {
-                ca_cordero: this.nuevo_canto.nu_cordero,
-            };
-
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_cordero', nuevoCantoCordero)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('cordero', '/cantos/todos_cordero'); // Actualizar la lista de cantos de entrada
-                    this.dialogCordero = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('cordero', this.nuevo_canto.nu_cordero);
         },
-
         GuardarComunion() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_comunion.trim() === '') {
-                console.error('El campo no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoComunion = {
-                ca_comunion: this.nuevo_canto.nu_comunion,
-            };
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_comunion', nuevoCantoComunion)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('comunion', '/cantos/todos_comunion'); // Actualizar la lista de cantos de entrada
-                    this.dialogComunion = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('comunion', this.nuevo_canto.nu_comunion);
         },
-
         GuardarSalida() {
-            // Verificar si el nuevo canto de entrada no está vacío
-            if (this.nuevo_canto.nu_salida.trim() === '') {
-                console.error('El campo no puede estar vacío.');
-                this.alertaVacio = true;
-                setTimeout(() => {
-                    this.alertaVacio = false;
-                }, 2000);
-                return;
-            }
-
-            // Crear el objeto con los datos del nuevo canto de entrada
-            const nuevoCantoSalida = {
-                ca_salida: this.nuevo_canto.nu_salida,
-            };
-
-            // Realizar la operación de guardado en la base de datos utilizando Axios
-            this.axios
-                .post('/cantos/insertar_salida', nuevoCantoSalida)
-                .then((response) => {
-                    // Procesar respuesta exitosa (si es necesario)
-                    console.log('Respuesta del servidor:', response.data);
-                    this.obtenerDatosCanto('salida', '/cantos/todos_salida'); // Actualizar la lista de cantos de entrada
-                    this.dialogSalida = false; // Cerrar el diálogo
-                    this.alertaIngresado = true;
-                    setTimeout(() => {
-                        this.alertaIngresado = false;
-                    }, 2000);
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        // El servidor respondió con un código de estado fuera del rango 2xx
-                        console.error('Error de respuesta del servidor:', error.response.data);
-                        this.alertaExistente = true;
-                        setTimeout(() => {
-                            this.alertaExistente = false;
-                        }, 2000);
-                    } else if (error.request) {
-                        // La solicitud fue hecha pero no se recibió respuesta
-                        console.error('Error de solicitud sin respuesta del servidor:', error.request);
-                    } else {
-                        // Otros tipos de errores
-                        console.error('Error general al intentar la solicitud:', error.message);
-                    }
-                }
-                );
+            this.guardarCanto('salida', this.nuevo_canto.nu_salida);
         },
+
         salir() {
             localStorage.clear('Usuario')
             this.$router.push({
