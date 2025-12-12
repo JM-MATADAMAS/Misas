@@ -241,7 +241,7 @@
                             <v-container v-if="misaSeleccionada">
                                 <v-row>
                                     <v-col cols="6">
-                                        <v-text-field dense label="Fecha" v-model="misaSeleccionada.mi_fecha"
+                                        <v-text-field dense label="Fecha" :value="formatearFecha(misaSeleccionada.mi_fecha)"
                                             readonly></v-text-field>
                                         <v-text-field dense label="Tipo" v-model="misaSeleccionada.mi_tipo"
                                             readonly></v-text-field>
@@ -782,6 +782,15 @@ export default {
 
         abrirCuadernillo() {
             window.open('https://drive.google.com/file/d/1KFy3SvvgoxGO_6A7-jySlt3RFrqUqHgi/view', '_blank')
+        },
+
+        formatearFecha(fechaStr) {
+            if (!fechaStr) return '';
+            const fecha = new Date(fechaStr);
+            const dia = String(fecha.getDate()).padStart(2, '0');
+            const mes = String(fecha.getMonth() + 1).padStart(2, '0');
+            const anio = fecha.getFullYear();
+            return `${dia}/${mes}/${anio}`;
         },
 
         async obtenerDatosCanto(nombreArreglo, url) {

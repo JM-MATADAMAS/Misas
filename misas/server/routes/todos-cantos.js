@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const connection = require('../connection');
+const connection = require('../connection'); // Tu archivo connection.js con mysql2/promise
 
-// Lista de tablas válidas para evitar inyecciones SQL
 const tablasValidas = {
   entrada: 'canto_entrada',
   piedad: 'canto_piedad',
@@ -16,11 +15,11 @@ const tablasValidas = {
   salida: 'canto_salida',
 };
 
-// Endpoint genérico para obtener cantos
+// Endpoint genérico para obtener cantos por tipo
 router.get('/todos/:tipo', async (req, res) => {
   const { tipo } = req.params;
 
-  // Validar que el tipo sea válido
+  // Validación del tipo recibido
   if (!tablasValidas[tipo]) {
     return res.status(400).json({ error: 'Tipo de canto no válido' });
   }
@@ -29,20 +28,24 @@ router.get('/todos/:tipo', async (req, res) => {
     const tabla = tablasValidas[tipo];
     const columna = `ca_${tipo}`;
     const query = `SELECT ${columna} FROM ${tabla}`;
-    const result = await connection.query(query);
-    const datos = result.map((row) => row[columna]);
+
+    // Ejecutar la consulta
+    const [rows] = await connection.query(query);
+
+    // Extraer los valores de la columna correspondiente
+    const datos = rows.map((row) => row[columna]);
+
     res.json(datos);
   } catch (error) {
-    console.error(error);
+    console.error('Error al obtener cantos:', error);
     res.status(500).json({ error: 'Ocurrió un error en el servidor' });
   }
 });
 
-// Endpoint genérico para insertar cantos
+// POST insertar canto
 router.post('/insertar', async (req, res) => {
   const { tipo, nombre } = req.body;
 
-  // Validar que el tipo sea válido
   if (!tablasValidas[tipo]) {
     return res.status(400).json({ error: 'Tipo de canto no válido' });
   }
@@ -51,15 +54,13 @@ router.post('/insertar', async (req, res) => {
     const tabla = tablasValidas[tipo];
     const columna = `ca_${tipo}`;
 
-    // Verificar si el canto ya existe
     const existenciaQuery = `SELECT COUNT(*) as count FROM ${tabla} WHERE ${columna} = ?`;
-    const existenciaResult = await connection.query(existenciaQuery, [nombre]);
+    const [existenciaRows] = await connection.query(existenciaQuery, [nombre]);
 
-    if (existenciaResult[0].count > 0) {
+    if (existenciaRows[0].count > 0) {
       return res.status(400).json({ error: 'El canto ya existe.' });
     }
 
-    // Insertar el nuevo canto
     const insercionQuery = `INSERT INTO ${tabla} (${columna}) VALUES (?)`;
     await connection.query(insercionQuery, [nombre]);
 
@@ -70,11 +71,10 @@ router.post('/insertar', async (req, res) => {
   }
 });
 
-// Endpoint genérico para eliminar cantos
+// DELETE eliminar canto
 router.delete('/eliminar', async (req, res) => {
   const { tipo, nombre } = req.body;
 
-  // Validar que el tipo sea válido
   if (!tablasValidas[tipo]) {
     return res.status(400).json({ error: 'Tipo de canto no válido' });
   }
@@ -83,15 +83,13 @@ router.delete('/eliminar', async (req, res) => {
     const tabla = tablasValidas[tipo];
     const columna = `ca_${tipo}`;
 
-    // Verificar si el canto existe antes de eliminarlo
     const existenciaQuery = `SELECT COUNT(*) as count FROM ${tabla} WHERE ${columna} = ?`;
-    const existenciaResult = await connection.query(existenciaQuery, [nombre]);
+    const [existenciaRows] = await connection.query(existenciaQuery, [nombre]);
 
-    if (existenciaResult[0].count === 0) {
+    if (existenciaRows[0].count === 0) {
       return res.status(404).json({ error: 'El canto no existe.' });
     }
 
-    // Eliminar el canto
     const eliminacionQuery = `DELETE FROM ${tabla} WHERE ${columna} = ?`;
     await connection.query(eliminacionQuery, [nombre]);
 
@@ -101,5 +99,6 @@ router.delete('/eliminar', async (req, res) => {
     res.status(500).json({ error: 'Ocurrió un error en el servidor' });
   }
 });
+
 
 module.exports = router;

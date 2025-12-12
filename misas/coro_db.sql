@@ -158,18 +158,10 @@ ADD FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
 ON DELETE CASCADE
 ON UPDATE CASCADE;
 
-
-INSERT INTO usuario(correo,contrasena)
-	VALUES('javier.matadamas@hotmail.com', 'Dbs32014');
-
-
 DELETE FROM canto_entrada WHERE ca_entrada = 'Rápido';
 
 ALTER TABLE usuario
 	ADD COLUMN int_nombre VARCHAR (255);
-
-ALTER TABLE usuario
-	MODIFY int_nombre VARCHAR(255) NOT NULL;
 
 ALTER TABLE canto_entrada MODIFY COLUMN ca_entrada VARCHAR (60);
 ALTER TABLE misa MODIFY COLUMN mi_entrada VARCHAR (60);
